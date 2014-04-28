@@ -5,8 +5,8 @@ import com.dvdfu.platformer.handlers.GameObject;
 
 public class Block extends GameObject implements Poolable {
 	
-	public Block(float x, float y) {
-		super(x, y, 16, 16);
+	public Block(float x, float y, float width, float height) {
+		super(x, y, width, height);
 	}
 
 	public void reset() {}
