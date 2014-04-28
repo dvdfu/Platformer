@@ -1,0 +1,62 @@
+package com.dvdfu.platformer.handlers;
+
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.Input.Keys;
+
+public class InputProcessor extends InputAdapter {
+	
+	public boolean mouseMoved(int x, int y) {
+		Input.mouseX = x;
+		Input.mouseY = y;
+		return true;
+	}
+	
+	public boolean touchDragged(int x, int y, int pointer) {
+		Input.mouseX = x;
+		Input.mouseY = y;
+		Input.mouseClick = true;
+		return true;
+	}
+	
+	public boolean touchDown(int x, int y, int pointer, int button) {
+		Input.mouseX = x;
+		Input.mouseY = y;
+		Input.mouseClick = true;
+		return true;
+	}
+	
+	public boolean touchUp(int x, int y, int pointer, int button) {
+		Input.mouseX = x;
+		Input.mouseY = y;
+		Input.mouseClick = false;
+		return true;
+	}
+	
+	public boolean keyDown(int k) {
+		switch (k) {
+			case Keys.UP:
+			Input.setKey(Input.ARROW_UP, true); break;
+			case Keys.DOWN:
+			Input.setKey(Input.ARROW_DOWN, true); break;
+			case Keys.LEFT:
+			Input.setKey(Input.ARROW_LEFT, true); break;
+			case Keys.RIGHT:
+			Input.setKey(Input.ARROW_RIGHT, true); break;
+		}
+		return true;
+	}
+	
+	public boolean keyUp(int k) {
+		switch (k) {
+			case Keys.UP:
+			Input.setKey(Input.ARROW_UP, false); break;
+			case Keys.DOWN:
+			Input.setKey(Input.ARROW_DOWN, false); break;
+			case Keys.LEFT:
+			Input.setKey(Input.ARROW_LEFT, false); break;
+			case Keys.RIGHT:
+			Input.setKey(Input.ARROW_RIGHT, false); break;
+		}
+		return true;
+	}
+}
