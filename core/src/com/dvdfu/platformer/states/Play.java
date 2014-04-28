@@ -1,12 +1,15 @@
 package com.dvdfu.platformer.states;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -19,7 +22,7 @@ import com.dvdfu.platformer.entities.Player;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
 
-public class Play implements ApplicationListener {
+public class Play extends Game {
 	private OrthographicCamera camera;
 	private SpriteBatch sb;
 	private ShapeRenderer sr;
@@ -28,6 +31,7 @@ public class Play implements ApplicationListener {
 	private Array<Block> blockArray;
 	private OrthogonalTiledMapRenderer renderer;
 	private TiledMap map;
+	private TextureRegion bg;
 
 	public static AssetManager am;
 
@@ -50,6 +54,8 @@ public class Play implements ApplicationListener {
 		renderer = new OrthogonalTiledMapRenderer(map, 1f);
 		camera.setToOrtho(false, 640, 480);
 		camera.update();
+		
+		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
 
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
 		int layerWidth = layer.getWidth();
@@ -118,18 +124,20 @@ public class Play implements ApplicationListener {
 		
 		camera.update();
 		sb.setProjectionMatrix(camera.combined);
+		sr.setProjectionMatrix(camera.combined);
 		renderer.setView(camera);
-		
-		renderer.render();
-		p.render(sb);
-		/*sb.begin();
+
+		sb.begin();
+		sb.draw(bg, camera.position.x-320, 0);
 		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), 320, 240 + 1/Gdx.graphics.getDeltaTime());
 		sb.end();
-		sr.setProjectionMatrix(camera.combined);
-		p.render(sr);
-		for (Block b : blockArray) {
-			b.render(sr);
-		}*/
+		
+		renderer.render();
+		//for (Block b : blockArray) {
+			//b.render(sr);
+		//}
+		//p.render(sr);
+		p.render(sb);
 	}
 
 	public void resize(int width, int height) {
