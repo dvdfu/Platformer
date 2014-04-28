@@ -111,23 +111,25 @@ public class Play implements ApplicationListener {
 	public void render() {
 		Gdx.gl.glClearColor(0, 0.2f, 0.1f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		
 		p.update(Gdx.graphics.getDeltaTime());
 		camera.position.x = p.getx();
+		
 		camera.update();
-		renderer.setView(camera);
-		renderer.render();
-		Input.update();
 		sb.setProjectionMatrix(camera.combined);
-		sb.begin();
-		// f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), 320, 240 +
-		// 1/Gdx.graphics.getDeltaTime());
+		renderer.setView(camera);
+		
+		renderer.render();
+		p.render(sb);
+		/*sb.begin();
+		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), 320, 240 + 1/Gdx.graphics.getDeltaTime());
 		sb.end();
 		sr.setProjectionMatrix(camera.combined);
-		p.render(sb);
 		p.render(sr);
 		for (Block b : blockArray) {
 			b.render(sr);
-		}
+		}*/
 	}
 
 	public void resize(int width, int height) {

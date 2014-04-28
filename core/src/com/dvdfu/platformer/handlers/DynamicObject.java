@@ -1,6 +1,6 @@
 package com.dvdfu.platformer.handlers;
 
-public class DynamicObject extends GameObject {
+public class DynamicObject extends TexturedObject {
 	protected float dx;
 	protected float dy;
 	

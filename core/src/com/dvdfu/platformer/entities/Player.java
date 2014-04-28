@@ -22,7 +22,7 @@ public class Player extends DynamicObject {
 		}
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
-		dx = 6;
+		dx = 60;
 	}
 
 	public void update(float dt) {

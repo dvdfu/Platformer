@@ -6,23 +6,18 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 
-public class GameObject {
-	protected Rectangle body;
+public class TexturedObject extends SimpleObject {
 	protected Animation animation;
-	protected float x;
-	protected float y;
-	protected float width;
-	protected float height;
 	protected float xOffset;
 	protected float yOffset;
 	protected float spriteWidth;
 	protected float spriteHeight;
-
-	public GameObject() {
+	
+	public TexturedObject() {
 		this(0, 0, 0, 0);
 	}
 
-	public GameObject(float x, float y, float width, float height) {
+	public TexturedObject(float x, float y, float width, float height) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -34,20 +29,9 @@ public class GameObject {
 		body = new Rectangle(x, y, width, height);
 		animation = new Animation();
 	}
-
-	public void setPosition(float x, float y) {
-		this.x = x;
-		this.y = y;
-	}
-	
 	public void setOffset(float xOffset, float yOffset) {
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
-	}
-
-	public void setBody(float width, float height) {
-		this.width = width;
-		this.height = height;
 	}
 
 	public void setAnimation(TextureRegion reg, float delay) {
@@ -77,17 +61,5 @@ public class GameObject {
 		sr.setColor(0, 1, 0, 1);
 		sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
 		sr.end();
-	}
-
-	public Rectangle getBody() {
-		return body;
-	}
-	
-	public float getx() {
-		return x;
-	}
-	
-	public float gety() {
-		return y;
 	}
 }
