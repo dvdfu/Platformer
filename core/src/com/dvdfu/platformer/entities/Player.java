@@ -7,28 +7,29 @@ import com.badlogic.gdx.math.MathUtils;
 import com.dvdfu.platformer.handlers.DynamicObject;
 
 public class Player extends DynamicObject {
-	private float time;
 	private boolean ground;
+
 	public Player() {
-		super(300, 0, 64, 64);
-		// setBody(64, 64);
+		super(300, 200, 32, 32);
+		load();
+		ground = false;
+	}
+
+	private void load() {
 		TextureRegion sprite[] = new TextureRegion[3];
 		for (int i = 0; i < 3; i++) {
 			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
 		}
-		setAnimation(sprite, 1/3f);
-		setOffset(16, 16);
-		time = 0;
+		setAnimation(sprite, 1 / 3f);
+		setOffset(0, 0);
+		dx = 60;
 	}
-	
+
 	public void update(float dt) {
-		time += dt;
-		dx = 400*MathUtils.cos(time*2);
-		dy = 400*MathUtils.sin(time*2);
 		super.update(dt);
 	}
-	
+
 	public void moveLeft() {
-		
+
 	}
 }

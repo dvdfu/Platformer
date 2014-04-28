@@ -82,4 +82,12 @@ public class GameObject {
 	public Rectangle getBody() {
 		return body;
 	}
+	
+	public float getx() {
+		return x;
+	}
+	
+	public float gety() {
+		return y;
+	}
 }
