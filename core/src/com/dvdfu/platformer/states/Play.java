@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
 import com.dvdfu.platformer.entities.Player;
@@ -125,19 +126,51 @@ public class Play extends Game {
 		camera.update();
 		sb.setProjectionMatrix(camera.combined);
 		sr.setProjectionMatrix(camera.combined);
-		renderer.setView(camera);
 
 		sb.begin();
-		sb.draw(bg, camera.position.x-320, 0);
-		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), 320, 240 + 1/Gdx.graphics.getDeltaTime());
+		//sb.draw(bg, camera.position.x-320, 0);
+		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), camera.position.x-320+Input.mouse.x, 480-Input.mouse.y);
 		sb.end();
 		
-		renderer.render();
-		//for (Block b : blockArray) {
-			//b.render(sr);
-		//}
-		//p.render(sr);
-		p.render(sb);
+		//renderer.render();
+		for (Block b : blockArray) {
+			b.render(sr);
+		}
+		if (!p.collision) {
+			p.render(sr);
+		}
+		//p.render(sb);
+		collide();
+		keys();
+	}
+	
+	private void collide() {
+		boolean yes = false;
+		for (Block b : blockArray) {
+			if (b.getBody().overlaps(p.getBody())) {
+				p.collision = true;
+				yes = true;
+				break;
+			}
+		}
+		if (!yes) {
+			p.collision = false;
+		}
+	}
+	
+	private void keys() {
+		if (Input.keys[Input.ARROW_UP]) {
+			p.moveUp();
+		}
+		if (Input.keys[Input.ARROW_DOWN]) {
+			p.moveDown();
+		}
+		if (Input.keys[Input.ARROW_LEFT]) {
+			p.moveLeft();
+		}
+		if (Input.keys[Input.ARROW_RIGHT]) {
+			p.moveRight();
+		}
 	}
 
 	public void resize(int width, int height) {

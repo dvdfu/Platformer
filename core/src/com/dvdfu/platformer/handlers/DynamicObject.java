@@ -16,6 +16,8 @@ public class DynamicObject extends TexturedObject {
 		super.update(dt);
 		x += dx*dt;
 		y += dy*dt;
+		body.x = x;
+		body.y = y;
 	}
 	
 	/*public void setdx(float dx) { this.dx = dx; }

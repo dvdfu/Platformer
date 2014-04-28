@@ -1,9 +1,10 @@
 package com.dvdfu.platformer.handlers;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class Input {
 
-	public static int mouseX;
-	public static int mouseY;
+	public static Vector2 mouse;
 	public static boolean mouseClick;
 	private static boolean mouseClickPrev;
 	public static boolean[] keys;
@@ -15,6 +16,7 @@ public class Input {
 	public static final int ARROW_RIGHT = 3;
 
 	static {
+		mouse = new Vector2();
 		keys = new boolean[NUM_KEYS];
 		keysPrev = new boolean[NUM_KEYS];
 	}

@@ -6,28 +6,28 @@ import com.badlogic.gdx.Input.Keys;
 public class InputProcessor extends InputAdapter {
 	
 	public boolean mouseMoved(int x, int y) {
-		Input.mouseX = x;
-		Input.mouseY = y;
+		Input.mouse.x = x;
+		Input.mouse.y = y;
 		return true;
 	}
 	
 	public boolean touchDragged(int x, int y, int pointer) {
-		Input.mouseX = x;
-		Input.mouseY = y;
+		Input.mouse.x = x;
+		Input.mouse.y = y;
 		Input.mouseClick = true;
 		return true;
 	}
 	
 	public boolean touchDown(int x, int y, int pointer, int button) {
-		Input.mouseX = x;
-		Input.mouseY = y;
+		Input.mouse.x = x;
+		Input.mouse.y = y;
 		Input.mouseClick = true;
 		return true;
 	}
 	
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		Input.mouseX = x;
-		Input.mouseY = y;
+		Input.mouse.x = x;
+		Input.mouse.y = y;
 		Input.mouseClick = false;
 		return true;
 	}
