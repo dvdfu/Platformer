@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
@@ -25,16 +26,16 @@ import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
 
 public class Play extends Game {
-	private OrthographicCamera camera;
 	private SpriteBatch sb;
 	private ShapeRenderer sr;
 	private Player p;
 	private BitmapFont f;
 	private static Array<Block> blockArray;
-	private OrthogonalTiledMapRenderer renderer;
+	private OrthogonalTiledMapRenderer level;
 	private TiledMap map;
 	private TextureRegion bg;
-	private CameraController cam;
+	private CameraController view;
+	private OrthographicCamera cam;
 
 	public static AssetManager am;
 
@@ -44,8 +45,8 @@ public class Play extends Game {
 
 		// am.load(fileName, type);
 
-		camera = new OrthographicCamera(640, 480);
-		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0f);
+		view = new CameraController(640, 480);
+		cam = new OrthographicCamera();
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
 
@@ -54,10 +55,8 @@ public class Play extends Game {
 
 		blockArray = new Array<Block>();
 		map = new TmxMapLoader().load("data/untitled.tmx");
-		renderer = new OrthogonalTiledMapRenderer(map, 1f);
-		camera.setToOrtho(false, 640, 480);
-		camera.update();
-		
+		level = new OrthogonalTiledMapRenderer(map, 1f);
+
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
 		int layerWidth = layer.getWidth();
@@ -74,6 +73,28 @@ public class Play extends Game {
 				} else {
 					gridCell[x][y] = true;
 				}
+			}
+		}
+
+		for (int y = 1; y < layerHeight - 1; y++) {
+			for (int x = 1; x < layerWidth - 1; x++) {
+				if (gridCell[x - 1][y] && gridCell[x + 1][y] && gridCell[x][y - 1] && gridCell[x][y + 1]) {
+					gridVisited[x][y] = true;
+				}
+			}
+		}
+
+		for (int y = 1; y < layerHeight - 1; y++) {
+			for (int x = 1; x < layerWidth - 1; x++) {
+				if (gridVisited[x][y] && gridCell[x][y]) {
+					gridCell[x][y] = false;
+				}
+			}
+		}
+
+		for (int y = 1; y < layerHeight - 1; y++) {
+			for (int x = 1; x < layerWidth - 1; x++) {
+				gridVisited[x][y] = false;
 			}
 		}
 
@@ -116,34 +137,55 @@ public class Play extends Game {
 		sr.dispose();
 	}
 
+	public void update(float dt) {
+		keys();
+		Input.update();
+		p.update(dt);
+		view.follow(p.getx(), p.gety());
+		view.update();
+		cam = view.getCam();
+		level.setView(cam);
+
+		sb.setProjectionMatrix(cam.combined);
+		sr.setProjectionMatrix(cam.combined);
+	}
+
 	public void render() {
+		update(Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-		
-		
-		p.update(Gdx.graphics.getDeltaTime());
-		camera.position.x = p.getx();
-		
-		camera.update();
-		sb.setProjectionMatrix(camera.combined);
-		sr.setProjectionMatrix(camera.combined);
 
 		sb.begin();
-		//sb.draw(bg, camera.position.x-320, 0);
-		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), camera.position.x-320+Input.mouse.x, 480-Input.mouse.y);
+		sb.draw(bg, cam.position.x - 320, 0);
 		sb.end();
 		
-		renderer.render();
+
+		level.render();
+
 		for (Block b : blockArray) {
 			b.render(sr);
 		}
-		if (!p.collision) {
-			p.render(sr);
+		p.render(sr);
+		p.render(sb);
+		p.rp(sr);
+	}
+
+	public static Rectangle blockAt(float x, float y) {
+		for (Block b : blockArray) {
+			if (b.getBody().contains(x, y)) {
+				return b.getBody();
+			}
 		}
-		//p.render(sb);
-		keys();
-		Input.update();
+		return null;
+	}
+
+	public static Rectangle blockIn(Rectangle r) {
+		for (Block b : blockArray) {
+			if (b.getBody().overlaps(r)) {
+				return b.getBody();
+			}
+		}
+		return null;
 	}
 
 	public static boolean spaceFree(float x, float y) {

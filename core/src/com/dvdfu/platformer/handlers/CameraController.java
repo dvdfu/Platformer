@@ -1,6 +1,7 @@
 package com.dvdfu.platformer.handlers;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
 public class CameraController {
@@ -19,7 +20,6 @@ public class CameraController {
 		pos = new Vector2(cam.position.x, cam.position.y);
 		dist = new Vector2();
 		lead = new Vector2();
-		
 	}
 	
 	public void setPan(int pan) {
@@ -37,7 +37,8 @@ public class CameraController {
 	
 	public void update() {
 		cam.update();
+		cam.position.x = lead.x;
+		cam.position.y = lead.y;
 		dist = pos.sub(lead);
 	}
-	
 }

@@ -1,28 +1,34 @@
 package com.dvdfu.platformer.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.dvdfu.platformer.handlers.DynamicObject;
 import com.dvdfu.platformer.states.Play;
 
 public class Player extends DynamicObject {
-	public boolean collision;
 	private boolean ground;
-	private boolean moving;
-	private float time;
 	private float gravity;
 	private float deltatime;
+	private Rectangle xprojection;
+	private Rectangle yprojection;
+	private Rectangle xcollision;
+	private Rectangle ycollision;
 
 	public Player() {
-		super(300, 200, 32, 32);
+		super(320, 320, 32, 32);
 		load();
 		ground = false;
-		moving = false;
-		time = 0;
-		collision = false;
 		gravity = 1000f;
+		xprojection = new Rectangle(x, y, width, height);
+		yprojection = new Rectangle(x, y, width, height);
+		xcollision = null;
+		ycollision = null;
 	}
 
 	private void load() {
@@ -33,46 +39,80 @@ public class Player extends DynamicObject {
 		}
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
-		// dx = 100;
 	}
 
 	public void update(float dt) {
 		deltatime = dt;
-		time += deltatime;
-		// dx = 300*MathUtils.cos(time*2);
-		// dy = 300*MathUtils.sin(time*2);
-		super.update(deltatime);
-		if (Math.abs(dx) > 0.1) {
-			dx *= 0.9;
-		} else {
-			dx = 0;
-		}
-		dy -= gravity * deltatime;
+		yprojection.setPosition(x, y+dy*dt*2);
+		ycollision = Play.blockIn(yprojection);
+		xprojection.setPosition(x+dx*dt*2, y);
+		xcollision = Play.blockIn(xprojection);
 		if (y < 0) {
-			ground = true;
 			y = 0;
+			ground = true;
 		}
+		if (ground) {
+			dy = 0;
+		}
+		else {
+			dy -= gravity*dt;
+		}
+		if (ycollision != null) {
+			if (dy < 0) {
+				dy = 0;
+				y = ycollision.y+ycollision.height;
+				ground = true;
+			}
+			if (dy > 0) {
+				dy = 0;
+				y = ycollision.y-height;
+				ground = false;
+			}
+		}
+		if (xcollision != null) {
+			if (dx > 0) {
+				dx = 0;
+				x = xcollision.x-width;
+			}
+			if (dx < 0) {
+				dx = 0;
+				x = xcollision.x+xcollision.width;
+			}
+		}
+		super.update(deltatime);
+		dx = 0;
 	}
 
 	public void moveUp() {
-		if (ground) {
-			dy = 400;
-			ground = false;
-		}
+		dy = 400;
+		ground = false;
 	}
 
 	public void moveDown() {
+		ground = false;
 	}
 
 	public void moveLeft() {
-		if (Play.spaceFree(x-200*deltatime, y)) {
-			dx = -200; 
-		}
+		dx = -200;
 	}
 
 	public void moveRight() {
-		if (Play.spaceFree(x+200*deltatime, y)) {
-			dx = 200; 
+		dx = 200;
+	}
+	
+	public void rp (ShapeRenderer sr) {
+		sr.begin(ShapeType.Line);
+		sr.setColor(Color.YELLOW);
+		sr.rect(xprojection.x, xprojection.y, xprojection.width, xprojection.height);
+		if (xcollision != null) {
+			sr.rect(xcollision.x, xcollision.y, xcollision.width, xcollision.height);
 		}
+
+		sr.setColor(Color.BLUE);
+		sr.rect(yprojection.x, yprojection.y, yprojection.width, yprojection.height);
+		if (ycollision != null) {
+			sr.rect(ycollision.x, ycollision.y, ycollision.width, ycollision.height);
+		}
+		sr.end();
 	}
 }
