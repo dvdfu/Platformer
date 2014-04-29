@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
 import com.dvdfu.platformer.entities.Player;
+import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
 
@@ -29,10 +30,11 @@ public class Play extends Game {
 	private ShapeRenderer sr;
 	private Player p;
 	private BitmapFont f;
-	private Array<Block> blockArray;
+	private static Array<Block> blockArray;
 	private OrthogonalTiledMapRenderer renderer;
 	private TiledMap map;
 	private TextureRegion bg;
+	private CameraController cam;
 
 	public static AssetManager am;
 
@@ -57,7 +59,6 @@ public class Play extends Game {
 		camera.update();
 		
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
-
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
 		int layerWidth = layer.getWidth();
 		int layerHeight = layer.getHeight();
@@ -116,8 +117,9 @@ public class Play extends Game {
 	}
 
 	public void render() {
-		Gdx.gl.glClearColor(0, 0.2f, 0.1f, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
 		
 		
 		p.update(Gdx.graphics.getDeltaTime());
@@ -132,7 +134,7 @@ public class Play extends Game {
 		f.draw(sb, "" + 1/Gdx.graphics.getDeltaTime(), camera.position.x-320+Input.mouse.x, 480-Input.mouse.y);
 		sb.end();
 		
-		//renderer.render();
+		renderer.render();
 		for (Block b : blockArray) {
 			b.render(sr);
 		}
@@ -140,35 +142,30 @@ public class Play extends Game {
 			p.render(sr);
 		}
 		//p.render(sb);
-		collide();
 		keys();
+		Input.update();
 	}
-	
-	private void collide() {
-		boolean yes = false;
+
+	public static boolean spaceFree(float x, float y) {
 		for (Block b : blockArray) {
-			if (b.getBody().overlaps(p.getBody())) {
-				p.collision = true;
-				yes = true;
-				break;
+			if (b.getBody().contains(x, y)) {
+				return false;
 			}
 		}
-		if (!yes) {
-			p.collision = false;
-		}
+		return true;
 	}
-	
+
 	private void keys() {
-		if (Input.keys[Input.ARROW_UP]) {
+		if (Input.KeyPressed(Input.ARROW_UP)) {
 			p.moveUp();
 		}
-		if (Input.keys[Input.ARROW_DOWN]) {
+		if (Input.KeyDown(Input.ARROW_DOWN)) {
 			p.moveDown();
 		}
-		if (Input.keys[Input.ARROW_LEFT]) {
+		if (Input.KeyDown(Input.ARROW_LEFT)) {
 			p.moveLeft();
 		}
-		if (Input.keys[Input.ARROW_RIGHT]) {
+		if (Input.KeyDown(Input.ARROW_RIGHT)) {
 			p.moveRight();
 		}
 	}
