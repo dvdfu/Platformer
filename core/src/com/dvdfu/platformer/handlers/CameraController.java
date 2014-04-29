@@ -36,9 +36,9 @@ public class CameraController {
 	}
 	
 	public void update() {
-		cam.update();
 		cam.position.x = lead.x;
 		cam.position.y = lead.y;
+		cam.update();
 		dist = pos.sub(lead);
 	}
 }

@@ -115,13 +115,20 @@ public class Play extends Game {
 
 				while (chainRows) {
 					for (int i = 0; i < xChain; i++) {
-						if (!gridCell[x + i][y + yChain] || gridVisited[x + i][y + yChain]) {
+						if (y + yChain >= layerHeight || 
+						!gridCell[x + i][y + yChain] ||
+						gridVisited[x + i][y + yChain]) {
 							chainRows = false;
 						}
 					}
 					if (chainRows) {
 						for (int i = 0; i < xChain; i++) {
-							gridVisited[x + i][y + yChain] = true;
+							if (y + yChain < layerHeight) {
+								gridVisited[x + i][y + yChain] = true;
+							}
+							else {
+								break;
+							}
 						}
 						yChain++;
 					}
@@ -137,10 +144,10 @@ public class Play extends Game {
 		sr.dispose();
 	}
 
-	public void update(float dt) {
+	public void render() {
 		keys();
 		Input.update();
-		p.update(dt);
+		p.update(Gdx.graphics.getDeltaTime());
 		view.follow(p.getx(), p.gety());
 		view.update();
 		cam = view.getCam();
@@ -148,25 +155,20 @@ public class Play extends Game {
 
 		sb.setProjectionMatrix(cam.combined);
 		sr.setProjectionMatrix(cam.combined);
-	}
-
-	public void render() {
-		update(Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		sb.begin();
 		sb.draw(bg, cam.position.x - 320, 0);
 		sb.end();
-		
 
-		level.render();
+		//level.render();
 
 		for (Block b : blockArray) {
 			b.render(sr);
 		}
-		p.render(sr);
 		p.render(sb);
+		//p.render(sr);
 		p.rp(sr);
 	}
 
@@ -201,7 +203,7 @@ public class Play extends Game {
 		if (Input.KeyPressed(Input.ARROW_UP)) {
 			p.moveUp();
 		}
-		if (Input.KeyDown(Input.ARROW_DOWN)) {
+		if (Input.KeyPressed(Input.ARROW_DOWN)) {
 			p.moveDown();
 		}
 		if (Input.KeyDown(Input.ARROW_LEFT)) {

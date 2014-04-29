@@ -34,7 +34,7 @@ public class SimpleObject {
 	}
 
 	public void render(ShapeRenderer sr) {
-		sr.begin(ShapeType.Filled);
+		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 0, 1);
 		sr.rect(x, y, width, height);
 		sr.end();
