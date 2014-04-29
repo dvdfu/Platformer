@@ -6,11 +6,11 @@ import com.dvdfu.platformer.states.Play;
 public class Water {
 	private Vector2 orig;
 	private Vector2 contact;
-	private Vector2 left;
-	private Vector2 right;
+	//private Vector2 left;
+	//private Vector2 right;
 	private boolean foundContact;
-	private boolean foundLeft;
-	private boolean foundRight;
+	//private boolean foundLeft;
+	//private boolean foundRight;
 	
 	public Water(float x, float y) {
 		orig = new Vector2(x, y);
