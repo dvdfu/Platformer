@@ -12,7 +12,7 @@ public class TexturedObject extends SimpleObject {
 	protected float yOffset;
 	protected float spriteWidth;
 	protected float spriteHeight;
-	
+
 	public TexturedObject() {
 		this(0, 0, 0, 0);
 	}
@@ -29,6 +29,7 @@ public class TexturedObject extends SimpleObject {
 		body = new Rectangle(x, y, width, height);
 		animation = new Animation();
 	}
+
 	public void setOffset(float xOffset, float yOffset) {
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;

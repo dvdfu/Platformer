@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
+import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
 import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Input;
@@ -38,22 +39,29 @@ public class Play extends Game {
 		// am.load(fileName, type);
 		view = new CameraController(640, 480);
 		view.setPan(20);
+		view.setZoom(0.5f);
 		cam = new OrthographicCamera();
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
 		p = new Player();
-		blockArray = new Array<Block>();
 		map = new TmxMapLoader().load("data/untitled.tmx");
-		level = new OrthogonalTiledMapRenderer(map, 1f);
+		createBlocks();
+		createPlatforms();
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
+		level = new OrthogonalTiledMapRenderer(map, 1f);
+	}
+	
+	private void createBlocks() {
+		blockArray = new Array<Block>();
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
 		int layerWidth = layer.getWidth();
 		int layerHeight = layer.getHeight();
 		boolean[][] gridCell = new boolean[layerWidth][layerHeight];
-		boolean[][] gridVisited = new boolean[layerWidth][layerHeight];
+		boolean[][] gridMark = new boolean[layerWidth][layerHeight];
+		// init grid arrays
 		for (int y = 0; y < layerHeight; y++) {
 			for (int x = 0; x < layerWidth; x++) {
-				gridVisited[x][y] = false;
+				gridMark[x][y] = false;
 				if (layer.getCell(x, y) == null) {
 					gridCell[x][y] = false;
 				} else {
@@ -61,48 +69,47 @@ public class Play extends Game {
 				}
 			}
 		}
+		// mark inner cells
 		for (int y = 1; y < layerHeight - 1; y++) {
 			for (int x = 1; x < layerWidth - 1; x++) {
 				if (gridCell[x - 1][y] && gridCell[x + 1][y] && gridCell[x][y - 1] && gridCell[x][y + 1]) {
-					gridVisited[x][y] = true;
+					gridMark[x][y] = true;
 				}
 			}
 		}
+		// remove inner cells, reset marked cells 
 		for (int y = 1; y < layerHeight - 1; y++) {
 			for (int x = 1; x < layerWidth - 1; x++) {
-				if (gridVisited[x][y] && gridCell[x][y]) {
+				if (gridMark[x][y] && gridCell[x][y]) {
 					gridCell[x][y] = false;
 				}
+				gridMark[x][y] = false;
 			}
 		}
-		for (int y = 1; y < layerHeight - 1; y++) {
-			for (int x = 1; x < layerWidth - 1; x++) {
-				gridVisited[x][y] = false;
-			}
-		}
+		// chain consecutive cells
 		for (int y = 0; y < layerHeight; y++) {
 			for (int x = 0; x < layerWidth; x++) {
-				if (!gridCell[x][y] || gridVisited[x][y]) {
+				if (!gridCell[x][y] || gridMark[x][y]) {
 					continue;
 				}
 				int xChain = 1;
 				int yChain = 1;
 				boolean chainRows = true;
-				gridVisited[x][y] = true;
-				while (x + xChain < layerWidth && gridCell[x + xChain][y] && !gridVisited[x + xChain][y]) {
-					gridVisited[x + xChain][y] = true;
+				gridMark[x][y] = true;
+				while (x + xChain < layerWidth && gridCell[x + xChain][y] && !gridMark[x + xChain][y]) {
+					gridMark[x + xChain][y] = true;
 					xChain++;
 				}
 				while (chainRows) {
 					for (int i = 0; i < xChain; i++) {
-						if (y + yChain >= layerHeight || !gridCell[x + i][y + yChain] || gridVisited[x + i][y + yChain]) {
+						if (y + yChain >= layerHeight || !gridCell[x + i][y + yChain] || gridMark[x + i][y + yChain]) {
 							chainRows = false;
 						}
 					}
 					if (chainRows) {
 						for (int i = 0; i < xChain; i++) {
 							if (y + yChain < layerHeight) {
-								gridVisited[x + i][y + yChain] = true;
+								gridMark[x + i][y + yChain] = true;
 							} else {
 								break;
 							}
@@ -115,11 +122,64 @@ public class Play extends Game {
 		}
 	}
 
+	private void createPlatforms() {
+		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 3");
+		int layerWidth = layer.getWidth();
+		int layerHeight = layer.getHeight();
+		boolean[][] gridCell = new boolean[layerWidth][layerHeight];
+		boolean[][] gridMark = new boolean[layerWidth][layerHeight];
+		// init grid arrays
+		for (int y = 0; y < layerHeight; y++) {
+			for (int x = 0; x < layerWidth; x++) {
+				gridMark[x][y] = false;
+				if (layer.getCell(x, y) == null) {
+					gridCell[x][y] = false;
+				} else {
+					gridCell[x][y] = true;
+				}
+			}
+		}
+		// chain consecutive cells
+		for (int y = 0; y < layerHeight; y++) {
+			for (int x = 0; x < layerWidth; x++) {
+				if (!gridCell[x][y] || gridMark[x][y]) {
+					continue;
+				}
+				int xChain = 1;
+				int yChain = 1;
+				boolean chainRows = true;
+				gridMark[x][y] = true;
+				while (x + xChain < layerWidth && gridCell[x + xChain][y] && !gridMark[x + xChain][y]) {
+					gridMark[x + xChain][y] = true;
+					xChain++;
+				}
+				while (chainRows) {
+					for (int i = 0; i < xChain; i++) {
+						if (y + yChain >= layerHeight || !gridCell[x + i][y + yChain] || gridMark[x + i][y + yChain]) {
+							chainRows = false;
+						}
+					}
+					if (chainRows) {
+						for (int i = 0; i < xChain; i++) {
+							if (y + yChain < layerHeight) {
+								gridMark[x + i][y + yChain] = true;
+							} else {
+								break;
+							}
+						}
+						yChain++;
+					}
+				}
+				blockArray.add(new Platform(x * 16, y * 16, 16 * xChain, 16 * yChain));
+			}
+		}
+	}
+	
 	public void dispose() {
 		sb.dispose();
 		sr.dispose();
 	}
-	
+
 	private void updateKeys() {
 		p.keyListener();
 	}
@@ -139,40 +199,21 @@ public class Play extends Game {
 		sb.begin();
 		sb.draw(bg, cam.position.x - 320, 0);
 		sb.end();
-		// level.render();
+		level.render();
 		for (Block b : blockArray) {
 			b.render(sr);
 		}
-		//p.render(sb);
+		// p.render(sb);
 		p.render(sr);
-		p.rp(sr);
 	}
 
-	public static Rectangle blockAt(float x, float y) {
-		for (Block b : blockArray) {
-			if (b.getBody().contains(x, y)) {
-				return b.getBody();
-			}
-		}
-		return null;
-	}
-
-	public static Rectangle blockIn(Rectangle r) {
+	public static Block blockIn(Rectangle r) {
 		for (Block b : blockArray) {
 			if (b.getBody().overlaps(r)) {
-				return b.getBody();
+				return b;
 			}
 		}
 		return null;
-	}
-
-	public static boolean spaceFree(float x, float y) {
-		for (Block b : blockArray) {
-			if (b.getBody().contains(x, y)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public void resize(int width, int height) {}

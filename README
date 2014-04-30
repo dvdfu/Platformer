@@ -1,11 +1,15 @@
 Small 2D platformer game engine in libgdx by https://github.com/dvdfu/
 
 WHAT'S NEW:
--shaking camera settings, more camera fine-tuning
--further refined collisions
+-code cleanup
+-fixed small bug with camera zoom
+-platforms!
+	-platform objects extend from blocks and are added to the block array
+	-platforms are to be added as a separate tile layer from regular blocks
+	-platforms yield no horizontal collision and are only solid from above
 
 TO DO NEXT:
 -collision still needs a bit of work but movement is fine as long as pathways aren't squeezed around the player
 
 NOTE:
--ignore the Ramp class
+

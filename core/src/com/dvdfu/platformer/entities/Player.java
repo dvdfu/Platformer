@@ -14,11 +14,10 @@ import com.dvdfu.platformer.states.Play;
 public class Player extends DynamicObject {
 	private boolean ground;
 	private float gravity;
-	private float deltatime;
 	private Rectangle xprojection;
 	private Rectangle yprojection;
-	private Rectangle xcollision;
-	private Rectangle ycollision;
+	private Block xcollision;
+	private Block ycollision;
 	private boolean debug;
 
 	public Player() {
@@ -34,65 +33,30 @@ public class Player extends DynamicObject {
 	}
 
 	private void load() {
-		
 		TextureRegion sprite[] = new TextureRegion[3];
-			for (int i = 0; i < 3; i++) {
-			sprite[i] = new TextureRegion(new
-			Texture(Gdx.files.internal("img/block" + i + ".png")));
+		for (int i = 0; i < 3; i++) {
+			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
 		}
-		//TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
+		// TextureRegion sprite = new TextureRegion(new
+		// Texture(Gdx.files.internal("img/blob.png")));
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
 	}
 
 	public void update(float dt) {
-		
-		deltatime = dt;
-		xprojection.setPosition(x + dx * dt*2, y);
-		xcollision = Play.blockIn(xprojection);
-		yprojection.setPosition(x, y + dy * dt*2);
-		ycollision = Play.blockIn(yprojection);
-		if (ground) {
-			if (Play.blockIn(new Rectangle(x, y - 1, width, height)) == null) {
-				ground = false;
-			}
-		}
-		if (!ground) {
-			dy -= gravity * dt;
-		}
-		if (ycollision != null) {
-			if (dy > 0) {
-				dy = 0;
-				y = ycollision.y - height;
-			}
-			if (dy < 0) {
-				dy = 0;
-				y = ycollision.y + ycollision.height;
-				ground = true;
-			}
-		}
-		if (xcollision != null) {
-			if (dx > 0) {
-				dx = 0;
-				x = xcollision.x - width;
-			}
-			if (dx < 0) {
-				dx = 0;
-				x = xcollision.x + xcollision.width;
-			}
-		}
+		collisions(dt);
 		if (dx == 0) {
-			x = Math.round(x/4)*4;
+			x = Math.round(x / 4) * 4;
 		}
-		super.update(deltatime);
+		super.update(dt);
 		dx = 0;
 	}
-	
+
 	public void keyListener() {
-		if (Input.KeyDown(Input.ARROW_UP)) {
+		if (Input.KeyPressed(Input.ARROW_UP)) {
 			moveUp();
 		}
-		if (Input.KeyDown(Input.ARROW_DOWN)) {
+		if (Input.KeyPressed(Input.ARROW_DOWN)) {
 			moveDown();
 		}
 		if (Input.KeyDown(Input.ARROW_LEFT)) {
@@ -106,44 +70,80 @@ public class Player extends DynamicObject {
 		}
 	}
 
-	public void moveUp() {
+	private void collisions(float dt) {
+		xprojection.setPosition(x + dx * dt * 2, y);
+		xcollision = Play.blockIn(xprojection);
+		yprojection.setPosition(x, y + dy * dt * 2);
+		ycollision = Play.blockIn(yprojection);
+		if (ground) {
+			Block beneath = Play.blockIn(new Rectangle(x, y - 1, width, height));
+			if (beneath == null || (beneath instanceof Platform && dy > 0)) {
+				ground = false;
+			}
+		}
+		if (!ground) {
+			dy -= gravity * dt;
+		}
+		if (ycollision != null) {
+			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
+				if (dy > 0) {
+					dy = 0;
+					y = ycollision.getBody().y - height;
+				}
+				if (dy < 0) {
+					dy = 0;
+					y = ycollision.getBody().y + ycollision.getBody().height;
+					ground = true;
+				}
+			}
+		}
+		if (xcollision != null && !(xcollision instanceof Platform)) {
+			if (dx > 0) {
+				dx = 0;
+				x = xcollision.getBody().x - width;
+			}
+			if (dx < 0) {
+				dx = 0;
+				x = xcollision.getBody().x + xcollision.getBody().width;
+			}
+		}
+	}
+
+	private void moveUp() {
 		if (ground) {
 			dy = 360;
 		}
 	}
 
-	public void moveDown() {
+	private void moveDown() {
 		if (ground) {
-			dy = -160;
+			dy = -320;
 		}
 	}
 
-	public void moveLeft() {
+	private void moveLeft() {
 		dx = -160;
 	}
 
-	public void moveRight() {
+	private void moveRight() {
 		dx = 160;
 	}
 
-	public void rp(ShapeRenderer sr) {
+	public void render(ShapeRenderer sr) {
+		super.render(sr);
 		if (debug) {
 			sr.begin(ShapeType.Line);
 			sr.setColor(Color.CYAN);
 			sr.rect(yprojection.x, yprojection.y, yprojection.width, yprojection.height);
 			if (ycollision != null) {
-				if (xcollision == ycollision) {
-					sr.setColor(Color.GREEN);
-				}
-				sr.rect(ycollision.x, ycollision.y, ycollision.width, ycollision.height);
+				Rectangle ybody = ycollision.getBody();
+				sr.rect(ybody.x, ybody.y, ybody.width, ybody.height);
 			}
 			sr.setColor(Color.YELLOW);
 			sr.rect(xprojection.x, xprojection.y, xprojection.width, xprojection.height);
 			if (xcollision != null) {
-				if (xcollision == ycollision) {
-					sr.setColor(Color.GREEN);
-				}
-				sr.rect(xcollision.x, xcollision.y, xcollision.width, xcollision.height);
+				Rectangle xbody = xcollision.getBody();
+				sr.rect(xbody.x, xbody.y, xbody.width, xbody.height);
 			}
 			sr.end();
 		}

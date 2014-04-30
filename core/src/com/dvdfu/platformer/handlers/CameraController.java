@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 public class CameraController {
 	private OrthographicCamera cam;
 	private int pan;
-	private float zoom;
 	private int shake;
 	private Vector2 position;
 	private Vector2 distance;
@@ -19,9 +18,8 @@ public class CameraController {
 		cam.position.set(viewWidth / 2f, viewWidth / 2f, 0f);
 		cam.update();
 		pan = 0;
-		zoom = 1;
+		cam.zoom = 1f;
 		shake = 0;
-		cam.zoom = zoom;
 		position = new Vector2(cam.position.x, cam.position.y);
 		distance = new Vector2(0, 0);
 		focus = new Vector2(0, 0);
@@ -32,9 +30,9 @@ public class CameraController {
 	}
 
 	public void setZoom(float zoom) {
-		this.zoom = zoom;
+		cam.zoom = zoom;
 	}
-	
+
 	public void setShake(int shake) {
 		this.shake = shake;
 	}
@@ -50,10 +48,8 @@ public class CameraController {
 
 	public void update() {
 		if (shake > 0) {
-			position.set(cam.position.x + MathUtils.random(-shake, shake),
-				cam.position.y + MathUtils.random(-shake, shake));
-		}
-		else {
+			position.set(cam.position.x + MathUtils.random(-shake, shake), cam.position.y + MathUtils.random(-shake, shake));
+		} else {
 			position.set(cam.position.x, cam.position.y);
 		}
 		distance = position.sub(focus);
