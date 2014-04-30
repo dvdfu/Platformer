@@ -20,6 +20,8 @@ import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
+import com.dvdfu.platformer.handlers.HUD;
+import com.dvdfu.platformer.handlers.HUDCountable;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
 
@@ -38,6 +40,8 @@ public class Play extends Game {
 	public static int screenHeight;
 	private Slab s;
 	private Slab s2;
+	private HUD h;
+	private HUDCountable hc;
 
 	public void create() {
 		Gdx.input.setInputProcessor(new InputProcessor());
@@ -57,10 +61,18 @@ public class Play extends Game {
 		createPlatforms();
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
 		level = new OrthogonalTiledMapRenderer(map, 1f);
-		s = new Slab(200, 208, 64, 64);
+		s = new Slab(160, 160, 32, 32);
 		blockArray.add(s);
-		s2 = new Slab(360, 208, 64, 64);
+		s2 = new Slab(272, 160, 32, 32);
 		blockArray.add(s2);
+		h = new HUD();
+		TextureRegion sprite[] = new TextureRegion[3];
+		for (int i = 0; i < 3; i++) {
+			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
+		}
+		hc = new HUDCountable(sprite, 64, 64, 8, 0);
+		hc.setNum(10);
+		h.addElement(hc);
 	}
 	
 	private void createBlocks() {
@@ -211,12 +223,17 @@ public class Play extends Game {
 		sb.begin();
 		sb.draw(bg, cam.position.x - 320, 0);
 		sb.end();
-		//level.render();
-		//p.render(sb);
-		for (Block b : blockArray) { b.render(sr); }
-		p.render(sr);
+		level.render();
+		p.render(sb);
+		//for (Block b : blockArray) { b.render(sr); }
+		//p.render(sr);
 		s.update(Gdx.graphics.getDeltaTime());
+		s.render(sb);
 		s2.update(Gdx.graphics.getDeltaTime());
+		s2.render(sb);
+		h.setView(cam);
+		h.render(sb);
+		h.update(Gdx.graphics.getDeltaTime());
 	}
 
 	public static Block blockIn(Rectangle r) {

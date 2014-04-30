@@ -12,11 +12,14 @@ import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.states.Play;
 
 public class Player extends GameObject {
+	final private float MOVE_SPEED = 160f;
+	final private float JUMP_SPEED = 360f;
+	final private float GRAVITY= 800f;
+	final private float AX = 10f;
+	final private float AX_AIR = 2f;
 	private boolean ground;
-	private float gravity;
 	private float vx;
 	private float vy;
-	private float ax;
 	private Rectangle xprojection;
 	private Rectangle yprojection;
 	private Block xcollision;
@@ -27,10 +30,8 @@ public class Player extends GameObject {
 		super(320, 320, 32, 32, true);
 		load();
 		ground = false;
-		gravity = 800f;
 		vx = 0;
 		vy = 0;
-		ax = 10f;
 		xprojection = new Rectangle(x, y, width, height);
 		yprojection = new Rectangle(x, y, width, height);
 		xcollision = null;
@@ -39,12 +40,11 @@ public class Player extends GameObject {
 	}
 
 	private void load() {
-		TextureRegion sprite[] = new TextureRegion[3];
-		for (int i = 0; i < 3; i++) {
-			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
-		}
-		// TextureRegion sprite = new TextureRegion(new
-		// Texture(Gdx.files.internal("img/blob.png")));
+		//TextureRegion sprite[] = new TextureRegion[3];
+		//for (int i = 0; i < 3; i++) {
+			//sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
+		//}
+		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
 	}
@@ -100,7 +100,7 @@ public class Player extends GameObject {
 			}
 		}
 		if (!ground) {
-			vy -= gravity * dt;
+			vy -= GRAVITY * dt;
 		}
 		if (ycollision != null) {
 			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
@@ -135,7 +135,7 @@ public class Player extends GameObject {
 
 	private void moveUp() {
 		if (ground) {
-			vy = 360;
+			vy = JUMP_SPEED;
 		}
 	}
 
@@ -146,38 +146,38 @@ public class Player extends GameObject {
 	}
 
 	private void moveLeft() {
-		if (vx > -160) {
-			vx -= ax;
+		if (vx > -MOVE_SPEED) {
+			vx -= AX;
 		} else {
-			vx = -160;
+			vx = -MOVE_SPEED;
 		}
 	}
 
 	private void moveRight() {
-		if (vx < 160) {
-			vx += ax;
+		if (vx < MOVE_SPEED) {
+			vx += AX;
 		} else {
-			vx = 160;
+			vx = MOVE_SPEED;
 		}
 	}
 
 	private void slowx() {
 		if (vx > 0) {
-			if (vx > ax) {
+			if (vx > AX) {
 				if (ground) {
-					vx -= ax;
+					vx -= AX;
 				} else {
-					vx -= ax / 4;
+					vx -= AX_AIR;
 				}
 			} else {
 				vx = 0;
 			}
 		} else if (vx < 0) {
-			if (vx < -ax) {
+			if (vx < -AX) {
 				if (ground) {
-					vx += ax;
+					vx += AX;
 				} else {
-					vx += ax / 4;
+					vx += AX_AIR;
 				}
 			} else {
 				vx = 0;

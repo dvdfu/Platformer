@@ -3,19 +3,17 @@
  <tileset firstgid="1" name="sffl3d" tilewidth="16" tileheight="16">
   <image source="tile.png" width="304" height="192"/>
  </tileset>
- <layer name="Tile Layer 1" width="60" height="30" visible="0">
-  <data encoding="base64" compression="zlib">
-   eJzt0UENACAMBMG6KVgA/OuiMpp0Hpvc+yYjYlW7ygH7VLd6Q3aHz/ny5cuXL98On/Ply5cvX74dPufLly9fvnw7fM6XL1++fPl+97ZcHA==
-  </data>
- </layer>
+ <tileset firstgid="229" name="block1" tilewidth="16" tileheight="16">
+  <image source="block1.png" width="32" height="32"/>
+ </tileset>
  <layer name="Tile Layer 2" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJztlDsKwDAMxQw5Ue9/ua4lfdjO4sRBAg35ghYPMxuIiE29BXrppbcv9NJb1fuI9Vd1X+17nNSroPd/tsLpvR70xmR759nhzZLMHRN7mX/U+Qo7eyO69FZBbwy9db2ZeRW9p9eHXkTEPr6euSMH
+   eJztmUEKwDAIBPP/f6btM5pLL4IYiFZZdyDsIRiSDl7sHGNca80mea/1NMrv3ehIv+jQLzb0iw39YkO/2NAvNvSLDf1ic+pXzg2qc+pXzg2qU61/o+9RrX+j7+Hdv9o52v5uvRfe/audo+3v1nsR5ddKqz6KKL9WWvVRSL9dMnven/V/oUtmf++/8wVkMOZG
   </data>
  </layer>
  <layer name="Tile Layer 3" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1DEKADAIBEE/7t/TpghHhDSBGbDR2q0CAAB+0NukW4d9GoCbJpzaMW2J9sB7/goAmFg8HxCb
+   eJztxbENADAIwDD+/7O0Z8AFjAyVLUWJAAAAAACAPafL4b+53RsOsK0APZgOaQ==
   </data>
  </layer>
 </map>
