@@ -9,11 +9,12 @@ public class Input {
 	private static boolean mouseClickPrev;
 	public static boolean[] keys;
 	private static boolean[] keysPrev;
-	private static final int NUM_KEYS = 4;
+	private static final int NUM_KEYS = 5;
 	public static final int ARROW_UP = 0;
 	public static final int ARROW_DOWN = 1;
 	public static final int ARROW_LEFT = 2;
 	public static final int ARROW_RIGHT = 3;
+	public static final int SPACEBAR = 4;
 
 	static {
 		mouse = new Vector2();

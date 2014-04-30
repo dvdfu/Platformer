@@ -1,11 +1,11 @@
-Small 2D platformer game engine in libgdx by https://github.com/dvdfu/Platformer
+Small 2D platformer game engine in libgdx by https://github.com/dvdfu/
 
 WHAT'S NEW:
--smoothed camera movement, adjustable using setPan(int pan) in the CameraController class
--debug rendering is toggleable (using the down arrow key at the moment)
+-shaking camera settings, more camera fine-tuning
+-further refined collisions
 
 TO DO NEXT:
--working on refining collision
+-collision still needs a bit of work but movement is fine as long as pathways aren't squeezed around the player
 
 NOTE:
--ignore the Water class
+-ignore the Ramp class

@@ -42,6 +42,8 @@ public class InputProcessor extends InputAdapter {
 			Input.setKey(Input.ARROW_LEFT, true); break;
 			case Keys.RIGHT:
 			Input.setKey(Input.ARROW_RIGHT, true); break;
+			case Keys.SPACE:
+			Input.setKey(Input.SPACEBAR, true); break;
 		}
 		return true;
 	}
@@ -56,6 +58,8 @@ public class InputProcessor extends InputAdapter {
 			Input.setKey(Input.ARROW_LEFT, false); break;
 			case Keys.RIGHT:
 			Input.setKey(Input.ARROW_RIGHT, false); break;
+			case Keys.SPACE:
+			Input.setKey(Input.SPACEBAR,  false); break;
 		}
 		return true;
 	}

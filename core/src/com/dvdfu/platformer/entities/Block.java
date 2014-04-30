@@ -7,6 +7,4 @@ public class Block extends SimpleObject {
 	public Block(float x, float y, float width, float height) {
 		super(x, y, width, height);
 	}
-
-	public void reset() {}
 }

@@ -1,12 +1,14 @@
 package com.dvdfu.platformer.handlers;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class CameraController {
 	private OrthographicCamera cam;
 	private int pan;
 	private float zoom;
+	private int shake;
 	private Vector2 position;
 	private Vector2 distance;
 	private Vector2 focus;
@@ -18,6 +20,7 @@ public class CameraController {
 		cam.update();
 		pan = 0;
 		zoom = 1;
+		shake = 0;
 		cam.zoom = zoom;
 		position = new Vector2(cam.position.x, cam.position.y);
 		distance = new Vector2(0, 0);
@@ -31,6 +34,10 @@ public class CameraController {
 	public void setZoom(float zoom) {
 		this.zoom = zoom;
 	}
+	
+	public void setShake(int shake) {
+		this.shake = shake;
+	}
 
 	public OrthographicCamera getCam() {
 		return cam;
@@ -42,15 +49,26 @@ public class CameraController {
 	}
 
 	public void update() {
+		if (shake > 0) {
+			position.set(cam.position.x + MathUtils.random(-shake, shake),
+				cam.position.y + MathUtils.random(-shake, shake));
+		}
+		else {
+			position.set(cam.position.x, cam.position.y);
+		}
+		distance = position.sub(focus);
 		if (pan == 0) {
 			cam.position.x = focus.x;
 			cam.position.y = focus.y;
 		} else {
-			cam.position.x -= distance.x / pan;
-			cam.position.y -= distance.y / pan;
+			if (distance.len() < 1f) {
+				cam.position.x = focus.x;
+				cam.position.y = focus.y;
+			} else {
+				cam.position.x -= distance.x / pan;
+				cam.position.y -= distance.y / pan;
+			}
 		}
 		cam.update();
-		position.set(cam.position.x, cam.position.y);
-		distance = position.sub(focus);
 	}
 }

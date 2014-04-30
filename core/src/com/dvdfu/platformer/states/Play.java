@@ -143,8 +143,8 @@ public class Play extends Game {
 		for (Block b : blockArray) {
 			b.render(sr);
 		}
-		p.render(sb);
-		// p.render(sr);
+		//p.render(sb);
+		p.render(sr);
 		p.rp(sr);
 	}
 
