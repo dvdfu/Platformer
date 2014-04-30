@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
 import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
+import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
@@ -33,26 +34,36 @@ public class Play extends Game {
 	private CameraController view;
 	private OrthographicCamera cam;
 	public static AssetManager am;
+	public static int screenWidth;
+	public static int screenHeight;
+	private Slab s;
+	private Slab s2;
 
 	public void create() {
 		Gdx.input.setInputProcessor(new InputProcessor());
+		screenWidth = Gdx.graphics.getWidth();
+		screenHeight = Gdx.graphics.getHeight();
 		// am.load(fileName, type);
-		view = new CameraController(640, 480);
+		view = new CameraController(screenWidth, screenHeight);
 		view.setPan(20);
-		view.setZoom(0.5f);
+		view.setZoom(1f);
 		cam = new OrthographicCamera();
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
 		p = new Player();
 		map = new TmxMapLoader().load("data/untitled.tmx");
+		blockArray = new Array<Block>();
 		createBlocks();
 		createPlatforms();
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
 		level = new OrthogonalTiledMapRenderer(map, 1f);
+		s = new Slab(200, 208, 64, 64);
+		blockArray.add(s);
+		s2 = new Slab(360, 208, 64, 64);
+		blockArray.add(s2);
 	}
 	
 	private void createBlocks() {
-		blockArray = new Array<Block>();
 		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
 		int layerWidth = layer.getWidth();
 		int layerHeight = layer.getHeight();
@@ -185,6 +196,7 @@ public class Play extends Game {
 	}
 
 	public void render() {
+		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
 		updateKeys();
 		Input.update();
 		p.update(Gdx.graphics.getDeltaTime());
@@ -199,12 +211,12 @@ public class Play extends Game {
 		sb.begin();
 		sb.draw(bg, cam.position.x - 320, 0);
 		sb.end();
-		level.render();
-		for (Block b : blockArray) {
-			b.render(sr);
-		}
-		// p.render(sb);
+		//level.render();
+		//p.render(sb);
+		for (Block b : blockArray) { b.render(sr); }
 		p.render(sr);
+		s.update(Gdx.graphics.getDeltaTime());
+		s2.update(Gdx.graphics.getDeltaTime());
 	}
 
 	public static Block blockIn(Rectangle r) {

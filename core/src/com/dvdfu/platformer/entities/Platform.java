@@ -15,6 +15,4 @@ public class Platform extends Block {
 		sr.rect(x, y, width, height);
 		sr.end();
 	}
-
-
 }

@@ -6,31 +6,65 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 
-public class TexturedObject extends SimpleObject {
+public class GameObject {
+	protected boolean drawable;
+	protected Rectangle body;
+	protected float x;
+	protected float y;
+	protected float width;
+	protected float height;
 	protected Animation animation;
 	protected float xOffset;
 	protected float yOffset;
 	protected float spriteWidth;
 	protected float spriteHeight;
 
-	public TexturedObject() {
-		this(0, 0, 0, 0);
+	public GameObject() {
+		this(0, 0, 0, 0, false);
 	}
 
-	public TexturedObject(float x, float y, float width, float height) {
+	public GameObject(float x, float y, float width, float height, boolean imaged) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.drawable = imaged;
+		body = new Rectangle(x, y, width, height);
 		xOffset = 0;
 		yOffset = 0;
 		spriteWidth = 0;
 		spriteHeight = 0;
-		body = new Rectangle(x, y, width, height);
 		animation = new Animation();
 	}
 
+	public void setPosition(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public void setBody(float width, float height) {
+		this.width = width;
+		this.height = height;
+	}
+	
+	public void setDrawable(boolean drawable) {
+		this.drawable = drawable;
+	}
+
+	public Rectangle getBody() {
+		return body;
+	}
+	
+	public float getx() {
+		return x;
+	}
+	
+	public float gety() {
+		return y;
+	}
+
 	public void setOffset(float xOffset, float yOffset) {
+		drawable = true;
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 	}
@@ -40,6 +74,7 @@ public class TexturedObject extends SimpleObject {
 	}
 
 	public void setAnimation(TextureRegion[] reg, float delay) {
+		drawable = true;
 		animation.setFrames(reg, delay);
 		spriteWidth = reg[0].getRegionWidth();
 		spriteHeight = reg[0].getRegionHeight();
@@ -50,17 +85,21 @@ public class TexturedObject extends SimpleObject {
 	}
 
 	public void render(SpriteBatch sb) {
-		sb.begin();
-		sb.draw(animation.getFrame(), x + xOffset, y + yOffset);
-		sb.end();
+		if (drawable) {
+			sb.begin();
+			sb.draw(animation.getFrame(), x + xOffset, y + yOffset);
+			sb.end();
+		}
 	}
 
 	public void render(ShapeRenderer sr) {
 		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 0, 1);
 		sr.rect(x, y, width, height);
-		sr.setColor(0, 1, 0, 1);
-		sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
+		if (drawable) {
+			sr.setColor(0, 1, 0, 1);
+			sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
+		}
 		sr.end();
 	}
 }

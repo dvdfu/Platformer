@@ -1,6 +1,8 @@
 Small 2D platformer game engine in libgdx by https://github.com/dvdfu/
 
 WHAT'S NEW:
+-code cleanup
+-fixed small bug with camera zoom
 -platforms!
 	-platform objects extend from blocks and are added to the block array
 	-platforms are to be added as a separate tile layer from regular blocks

@@ -7,13 +7,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.dvdfu.platformer.handlers.DynamicObject;
+import com.dvdfu.platformer.handlers.GameObject;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.states.Play;
 
-public class Player extends DynamicObject {
+public class Player extends GameObject {
 	private boolean ground;
 	private float gravity;
+	private float vx;
+	private float vy;
+	private float ax;
 	private Rectangle xprojection;
 	private Rectangle yprojection;
 	private Block xcollision;
@@ -21,10 +24,13 @@ public class Player extends DynamicObject {
 	private boolean debug;
 
 	public Player() {
-		super(320, 320, 32, 32);
+		super(320, 320, 32, 32, true);
 		load();
 		ground = false;
 		gravity = 800f;
+		vx = 0;
+		vy = 0;
+		ax = 10f;
 		xprojection = new Rectangle(x, y, width, height);
 		yprojection = new Rectangle(x, y, width, height);
 		xcollision = null;
@@ -45,11 +51,14 @@ public class Player extends DynamicObject {
 
 	public void update(float dt) {
 		collisions(dt);
-		if (dx == 0) {
+		if (vx == 0) {
 			x = Math.round(x / 4) * 4;
 		}
-		super.update(dt);
-		dx = 0;
+		animation.update(dt);
+		x += vx * dt;
+		y += vy * dt;
+		body.x = x;
+		body.y = y;
 	}
 
 	public void keyListener() {
@@ -65,45 +74,60 @@ public class Player extends DynamicObject {
 		if (Input.KeyDown(Input.ARROW_RIGHT)) {
 			moveRight();
 		}
+		if (!Input.KeyDown(Input.ARROW_LEFT) && !Input.KeyDown(Input.ARROW_RIGHT)) {
+			slowx();
+		}
 		if (Input.KeyPressed(Input.SPACEBAR)) {
 			debug = !debug;
 		}
 	}
 
 	private void collisions(float dt) {
-		xprojection.setPosition(x + dx * dt * 2, y);
-		xcollision = Play.blockIn(xprojection);
-		yprojection.setPosition(x, y + dy * dt * 2);
-		ycollision = Play.blockIn(yprojection);
+		xprojection.setPosition(x + vx * dt * 2, y);
+		yprojection.setPosition(x, y + vy * dt * 2);
+		if (vx != 0 || vy != 0) {
+			xcollision = Play.blockIn(xprojection);
+			ycollision = Play.blockIn(yprojection);
+		}
+		else {
+			xcollision = null;
+			ycollision = null;
+		}
 		if (ground) {
 			Block beneath = Play.blockIn(new Rectangle(x, y - 1, width, height));
-			if (beneath == null || (beneath instanceof Platform && dy > 0)) {
+			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
 				ground = false;
 			}
 		}
 		if (!ground) {
-			dy -= gravity * dt;
+			vy -= gravity * dt;
 		}
 		if (ycollision != null) {
 			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
-				if (dy > 0) {
-					dy = 0;
+				if (vy > 0) {
+					vy = 0;
 					y = ycollision.getBody().y - height;
 				}
-				if (dy < 0) {
-					dy = 0;
+				if (vy < 0) {
+					vy = 0;
 					y = ycollision.getBody().y + ycollision.getBody().height;
 					ground = true;
 				}
 			}
 		}
 		if (xcollision != null && !(xcollision instanceof Platform)) {
-			if (dx > 0) {
-				dx = 0;
+			if (vx > 0) {
+				if (xcollision instanceof Slab && ground) {
+					((Slab) xcollision).push(1);
+				}
+				vx = 0;
 				x = xcollision.getBody().x - width;
 			}
-			if (dx < 0) {
-				dx = 0;
+			if (vx < 0) {
+				if (xcollision instanceof Slab && ground) {
+					((Slab) xcollision).push(-1);
+				}
+				vx = 0;
 				x = xcollision.getBody().x + xcollision.getBody().width;
 			}
 		}
@@ -111,26 +135,57 @@ public class Player extends DynamicObject {
 
 	private void moveUp() {
 		if (ground) {
-			dy = 360;
+			vy = 360;
 		}
 	}
 
 	private void moveDown() {
 		if (ground) {
-			dy = -320;
+			vy = -320;
 		}
 	}
 
 	private void moveLeft() {
-		dx = -160;
+		if (vx > -160) {
+			vx -= ax;
+		} else {
+			vx = -160;
+		}
 	}
 
 	private void moveRight() {
-		dx = 160;
+		if (vx < 160) {
+			vx += ax;
+		} else {
+			vx = 160;
+		}
+	}
+
+	private void slowx() {
+		if (vx > 0) {
+			if (vx > ax) {
+				if (ground) {
+					vx -= ax;
+				} else {
+					vx -= ax / 4;
+				}
+			} else {
+				vx = 0;
+			}
+		} else if (vx < 0) {
+			if (vx < -ax) {
+				if (ground) {
+					vx += ax;
+				} else {
+					vx += ax / 4;
+				}
+			} else {
+				vx = 0;
+			}
+		}
 	}
 
 	public void render(ShapeRenderer sr) {
-		super.render(sr);
 		if (debug) {
 			sr.begin(ShapeType.Line);
 			sr.setColor(Color.CYAN);
@@ -147,5 +202,6 @@ public class Player extends DynamicObject {
 			}
 			sr.end();
 		}
+		super.render(sr);
 	}
 }

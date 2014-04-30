@@ -10,12 +10,12 @@
  </layer>
  <layer name="Tile Layer 2" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1EEKgCAQQFHBVt3/wG3bZEGjzMgb+DtRH5S9tdYlqWi7DC8vb93h5eWtO7y8vPHnrJps3tl+3zPvH+99j+Nl7Rl05tf7zPaO9l71D0d7n96fXbxR72s2ryRl7ALhVwoa
+   eJztlDsKwDAMxQw5Ue9/ua4lfdjO4sRBAg35ghYPMxuIiE29BXrppbcv9NJb1fuI9Vd1X+17nNSroPd/tsLpvR70xmR759nhzZLMHRN7mX/U+Qo7eyO69FZBbwy9db2ZeRW9p9eHXkTEPr6euSMH
   </data>
  </layer>
  <layer name="Tile Layer 3" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1LEJADAIRUHHcP9J06awCQTCD3fwagvFKgAAIFVvQbrke+4h3pv2ctKt2ZDKbwOAfy29CwNJ
+   eJzt1DEKADAIBEE/7t/TpghHhDSBGbDR2q0CAAB+0NukW4d9GoCbJpzaMW2J9sB7/goAmFg8HxCb
   </data>
  </layer>
 </map>
