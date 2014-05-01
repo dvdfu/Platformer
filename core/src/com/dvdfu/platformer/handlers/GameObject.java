@@ -1,6 +1,5 @@
 package com.dvdfu.platformer.handlers;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -81,8 +80,8 @@ public class GameObject {
 		spriteHeight = reg[0].getRegionHeight();
 	}
 
-	public void update(float dt) {
-		animation.update(dt);
+	public void update() {
+		animation.update();
 	}
 
 	public void render(SpriteBatch sb) {

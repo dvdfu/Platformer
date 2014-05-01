@@ -2,7 +2,6 @@ package com.dvdfu.platformer.handlers;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public abstract class HUDObject {
 	protected float x;
@@ -15,5 +14,5 @@ public abstract class HUDObject {
 	
 	public abstract void render(SpriteBatch sb, OrthographicCamera cam);
 
-	public abstract void update(float dt);
+	public abstract void update();
 }

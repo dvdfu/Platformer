@@ -7,14 +7,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.dvdfu.platformer.handlers.GameConstants;
 import com.dvdfu.platformer.handlers.GameObject;
 import com.dvdfu.platformer.handlers.Input;
-import com.dvdfu.platformer.states.Play;
+import com.dvdfu.platformer.states.GameScreen;
 
 public class Player extends GameObject {
 	final private float MOVE_SPEED = 160f;
-	final private float JUMP_SPEED = 360f;
-	final private float GRAVITY= 800f;
+	final private float JUMP_SPEED = 400f;
 	final private float AX = 10f;
 	final private float AX_AIR = 2f;
 	private boolean ground;
@@ -47,90 +47,6 @@ public class Player extends GameObject {
 		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
-	}
-
-	public void update(float dt) {
-		collisions(dt);
-		if (vx == 0) {
-			x = Math.round(x / 4) * 4;
-		}
-		animation.update(dt);
-		x += vx * dt;
-		y += vy * dt;
-		body.x = x;
-		body.y = y;
-	}
-
-	public void keyListener() {
-		if (Input.KeyPressed(Input.ARROW_UP)) {
-			moveUp();
-		}
-		if (Input.KeyPressed(Input.ARROW_DOWN)) {
-			moveDown();
-		}
-		if (Input.KeyDown(Input.ARROW_LEFT)) {
-			moveLeft();
-		}
-		if (Input.KeyDown(Input.ARROW_RIGHT)) {
-			moveRight();
-		}
-		if (!Input.KeyDown(Input.ARROW_LEFT) && !Input.KeyDown(Input.ARROW_RIGHT)) {
-			slowx();
-		}
-		if (Input.KeyPressed(Input.SPACEBAR)) {
-			debug = !debug;
-		}
-	}
-
-	private void collisions(float dt) {
-		xprojection.setPosition(x + vx * dt * 2, y);
-		yprojection.setPosition(x, y + vy * dt * 2);
-		if (vx != 0 || vy != 0) {
-			xcollision = Play.blockIn(xprojection);
-			ycollision = Play.blockIn(yprojection);
-		}
-		else {
-			xcollision = null;
-			ycollision = null;
-		}
-		if (ground) {
-			Block beneath = Play.blockIn(new Rectangle(x, y - 1, width, height));
-			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
-				ground = false;
-			}
-		}
-		if (!ground) {
-			vy -= GRAVITY * dt;
-		}
-		if (ycollision != null) {
-			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
-				if (vy > 0) {
-					vy = 0;
-					y = ycollision.getBody().y - height;
-				}
-				if (vy < 0) {
-					vy = 0;
-					y = ycollision.getBody().y + ycollision.getBody().height;
-					ground = true;
-				}
-			}
-		}
-		if (xcollision != null && !(xcollision instanceof Platform)) {
-			if (vx > 0) {
-				if (xcollision instanceof Slab && ground) {
-					((Slab) xcollision).push(1);
-				}
-				vx = 0;
-				x = xcollision.getBody().x - width;
-			}
-			if (vx < 0) {
-				if (xcollision instanceof Slab && ground) {
-					((Slab) xcollision).push(-1);
-				}
-				vx = 0;
-				x = xcollision.getBody().x + xcollision.getBody().width;
-			}
-		}
 	}
 
 	private void moveUp() {
@@ -181,6 +97,90 @@ public class Player extends GameObject {
 				}
 			} else {
 				vx = 0;
+			}
+		}
+	}
+
+	public void update() {
+		collisions();
+		if (vx == 0) {
+			x = Math.round(x / 4) * 4;
+		}
+		animation.update();
+		x += vx * GameConstants.SPF;
+		y += vy * GameConstants.SPF;
+		body.x = x;
+		body.y = y;
+	}
+
+	public void keyListener() {
+		if (Input.KeyPressed(Input.ARROW_UP)) {
+			moveUp();
+		}
+		if (Input.KeyPressed(Input.ARROW_DOWN)) {
+			moveDown();
+		}
+		if (Input.KeyDown(Input.ARROW_LEFT)) {
+			moveLeft();
+		}
+		if (Input.KeyDown(Input.ARROW_RIGHT)) {
+			moveRight();
+		}
+		if (!Input.KeyDown(Input.ARROW_LEFT) && !Input.KeyDown(Input.ARROW_RIGHT)) {
+			slowx();
+		}
+		if (Input.KeyPressed(Input.SPACEBAR)) {
+			debug = !debug;
+		}
+	}
+
+	private void collisions() {
+		xprojection.setPosition(x + vx * GameConstants.SPF * 2, y);
+		yprojection.setPosition(x, y + vy * GameConstants.SPF * 2);
+		if (vx != 0 || vy != 0) {
+			xcollision = GameScreen.blockIn(xprojection);
+			ycollision = GameScreen.blockIn(yprojection);
+		}
+		else {
+			xcollision = null;
+			ycollision = null;
+		}
+		if (ground) {
+			Block beneath = GameScreen.blockIn(new Rectangle(x, y - 1, width, height));
+			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
+				ground = false;
+			}
+		}
+		if (!ground) {
+			vy -= GameConstants.GRAVITY * GameConstants.SPF;
+		}
+		if (ycollision != null) {
+			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
+				if (vy > 0) {
+					vy = 0;
+					y = ycollision.getBody().y - height;
+				}
+				if (vy < 0) {
+					vy = 0;
+					y = ycollision.getBody().y + ycollision.getBody().height;
+					ground = true;
+				}
+			}
+		}
+		if (xcollision != null && !(xcollision instanceof Platform)) {
+			if (vx > 0) {
+				if (xcollision instanceof Slab && ground) {
+					((Slab) xcollision).push(1);
+				}
+				vx = 0;
+				x = xcollision.getBody().x - width;
+			}
+			if (vx < 0) {
+				if (xcollision instanceof Slab && ground) {
+					((Slab) xcollision).push(-1);
+				}
+				vx = 0;
+				x = xcollision.getBody().x + xcollision.getBody().width;
 			}
 		}
 	}

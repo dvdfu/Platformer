@@ -20,35 +20,35 @@ import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
+import com.dvdfu.platformer.handlers.GameConstants;
 import com.dvdfu.platformer.handlers.HUD;
 import com.dvdfu.platformer.handlers.HUDCountable;
+import com.dvdfu.platformer.handlers.HUDText;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.handlers.InputProcessor;
 
-public class Play extends Game {
+public class GameScreen extends Game {
+	private static Array<Block> blockArray;
+	public static AssetManager am;
 	private SpriteBatch sb;
 	private ShapeRenderer sr;
 	private Player p;
-	private static Array<Block> blockArray;
 	private OrthogonalTiledMapRenderer level;
 	private TiledMap map;
 	private TextureRegion bg;
 	private CameraController view;
 	private OrthographicCamera cam;
-	public static AssetManager am;
-	public static int screenWidth;
-	public static int screenHeight;
 	private Slab s;
 	private Slab s2;
 	private HUD h;
 	private HUDCountable hc;
+	private HUDText t;
 
 	public void create() {
 		Gdx.input.setInputProcessor(new InputProcessor());
-		screenWidth = Gdx.graphics.getWidth();
-		screenHeight = Gdx.graphics.getHeight();
-		// am.load(fileName, type);
-		view = new CameraController(screenWidth, screenHeight);
+		am = new AssetManager();
+		am.load("img/bg.png", Texture.class);
+		view = new CameraController(GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT);
 		view.setPan(20);
 		view.setZoom(1f);
 		cam = new OrthographicCamera();
@@ -61,18 +61,21 @@ public class Play extends Game {
 		createPlatforms();
 		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
 		level = new OrthogonalTiledMapRenderer(map, 1f);
-		s = new Slab(160, 160, 32, 32);
+		s = new Slab(160, 400, 32, 32);
 		blockArray.add(s);
 		s2 = new Slab(272, 160, 32, 32);
 		blockArray.add(s2);
 		h = new HUD();
-		TextureRegion sprite[] = new TextureRegion[3];
-		for (int i = 0; i < 3; i++) {
-			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
+		TextureRegion sprite[] = new TextureRegion[2];
+		for (int i = 0; i < 2; i++) {;
+			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/heart1.png")), i * 32, 0, 32, 32);
 		}
-		hc = new HUDCountable(sprite, 64, 64, 8, 0);
-		hc.setNum(10);
+		hc = new HUDCountable(sprite, 64, 64, -2, 0);
+		hc.setNum(4);
+		hc.setDelay(1/2f);
 		h.addElement(hc);
+		t = new HUDText("Lives: ", 16, 88);
+		h.addElement(t);
 	}
 	
 	private void createBlocks() {
@@ -211,7 +214,7 @@ public class Play extends Game {
 		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
 		updateKeys();
 		Input.update();
-		p.update(Gdx.graphics.getDeltaTime());
+		p.update();
 		view.follow(p.getx(), p.gety());
 		view.update();
 		cam = view.getCam();
@@ -227,13 +230,13 @@ public class Play extends Game {
 		p.render(sb);
 		//for (Block b : blockArray) { b.render(sr); }
 		//p.render(sr);
-		s.update(Gdx.graphics.getDeltaTime());
+		s.update();
 		s.render(sb);
-		s2.update(Gdx.graphics.getDeltaTime());
+		s2.update();
 		s2.render(sb);
 		h.setView(cam);
 		h.render(sb);
-		h.update(Gdx.graphics.getDeltaTime());
+		h.update();
 	}
 
 	public static Block blockIn(Rectangle r) {

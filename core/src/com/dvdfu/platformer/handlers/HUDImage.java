@@ -33,7 +33,7 @@ public class HUDImage extends HUDObject {
 		sb.draw(image.getFrame(), x + cam.position.x - cam.viewportWidth / 2, y + cam.position.y - cam.viewportHeight / 2);
 	}
 
-	public void update(float dt) {
-		image.update(dt);
+	public void update() {
+		image.update();
 	}
 }

@@ -43,9 +43,9 @@ public class Animation {
 		timesPlayed = 0;
 	}
 	
-	public void update(float dt) {
+	public void update() {
 		if(delay <= 0) return;
-		time += dt;
+		time += GameConstants.SPF;
 		while(time >= delay) {
 			time -= delay;
 			currentFrame++;

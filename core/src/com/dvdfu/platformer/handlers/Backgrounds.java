@@ -4,30 +4,30 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
-public class HUD {
-	private Array<HUDObject> elements;
+public class Backgrounds {
+	private Array<HUDImage> backgrounds;
 	private OrthographicCamera cam;
 	
-	public HUD() {
-		elements = new Array<HUDObject>();
+	public Backgrounds() {
+		backgrounds = new Array<HUDImage>();
 		cam = new OrthographicCamera();
 	}
 	
 	public void render(SpriteBatch sb) {
 		sb.begin();
-		for (HUDObject i : elements) {
+		for (HUDObject i : backgrounds) {
 			i.render(sb, cam);
 		}
 		sb.end();
 	}	
 	public void update() {
-		for (HUDObject i : elements) {
+		for (HUDObject i : backgrounds) {
 			i.update();
 		}
 	}
 	
-	public void addElement(HUDObject e) {
-		elements.add(e);
+	public void addElement(HUDImage e) {
+		backgrounds.add(e);
 	}
 	
 	public void setView(OrthographicCamera cam) {
