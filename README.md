@@ -1,5 +1,5 @@
 Basic 2D platformer game engine in libgdx by https://github.com/dvdfu/
 
-WHAT'S NEW: String HUD objects added.
+As of May 1, 2014:
 
-TO DO NEXT: Going back to make major revisions to the Game Object class.
+Currently making major overhauls to Sprites and GameObjects. Improving collisions and reducing the number of access calls to object rectangle hitboxes.
