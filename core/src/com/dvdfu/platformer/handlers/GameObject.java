@@ -1,7 +1,6 @@
 package com.dvdfu.platformer.handlers;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
@@ -28,8 +27,6 @@ public class GameObject {
 		this.width = width;
 		this.height = height;
 		body = new Rectangle(x, y, width, height);
-		body.x = x;
-		body.y = y;
 		xOffset = 0;
 		yOffset = 0;
 		spriteWidth = 0;

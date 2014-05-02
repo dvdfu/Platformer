@@ -229,7 +229,7 @@ public class GameScreen extends Game {
 		level.render();
 		p.render(sb);
 		//for (Block b : blockArray) { b.render(sr); }
-		//p.render(sr);
+		p.render(sr);
 		s.update();
 		s.render(sb);
 		s2.update();

@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.handlers.Vars;
 import com.dvdfu.platformer.handlers.GameObject;
 import com.dvdfu.platformer.handlers.Input;
@@ -20,11 +22,14 @@ public class Player extends GameObject {
 	private boolean ground;
 	private float vx;
 	private float vy;
+	private float px;
+	private float py;
 	private Rectangle xprojection;
 	private Rectangle yprojection;
 	private Block xcollision;
 	private Block ycollision;
 	private boolean debug;
+	private Array<Vector2> a = new Array<Vector2>(240);
 
 	public Player() {
 		super(320, 320, 32, 32);
@@ -40,10 +45,11 @@ public class Player extends GameObject {
 	}
 
 	private void load() {
-		//TextureRegion sprite[] = new TextureRegion[3];
-		//for (int i = 0; i < 3; i++) {
-			//sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
-		//}
+		// TextureRegion sprite[] = new TextureRegion[3];
+		// for (int i = 0; i < 3; i++) {
+		// sprite[i] = new TextureRegion(new
+		// Texture(Gdx.files.internal("img/block" + i + ".png")));
+		// }
 		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
 		this.sprite.setSprite(sprite);
 		setOffset(0, 0);
@@ -102,6 +108,12 @@ public class Player extends GameObject {
 	}
 
 	public void update() {
+		a.add(new Vector2(x, y));
+		if (a.size > 60) {
+			px = a.first().x;
+			py = a.first().y;
+			a.removeIndex(0);
+		}
 		collisions();
 		if (vx == 0) {
 			x = Math.round(x / 4) * 4;
@@ -140,8 +152,7 @@ public class Player extends GameObject {
 		if (vx != 0 || vy != 0) {
 			xcollision = GameScreen.blockIn(xprojection);
 			ycollision = GameScreen.blockIn(yprojection);
-		}
-		else {
+		} else {
 			xcollision = null;
 			ycollision = null;
 		}
@@ -186,6 +197,10 @@ public class Player extends GameObject {
 	}
 
 	public void render(ShapeRenderer sr) {
+		sr.begin(ShapeType.Line);
+		sr.setColor(Color.CYAN);
+		sr.rect(px, py, 32, 32);
+		sr.end();
 		if (debug) {
 			sr.begin(ShapeType.Line);
 			sr.setColor(Color.CYAN);
