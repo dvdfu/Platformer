@@ -9,8 +9,6 @@ import com.badlogic.gdx.math.Rectangle;
 public class GameObject {
 	protected boolean drawable;
 	protected Rectangle body;
-	protected float x;
-	protected float y;
 	protected float width;
 	protected float height;
 	protected Animation animation;
@@ -24,12 +22,12 @@ public class GameObject {
 	}
 
 	public GameObject(float x, float y, float width, float height, boolean imaged) {
-		this.x = x;
-		this.y = y;
 		this.width = width;
 		this.height = height;
 		this.drawable = imaged;
 		body = new Rectangle(x, y, width, height);
+		body.x = x;
+		body.y = y;
 		xOffset = 0;
 		yOffset = 0;
 		spriteWidth = 0;
@@ -38,17 +36,17 @@ public class GameObject {
 	}
 
 	public void setPosition(float x, float y) {
-		this.x = x;
-		this.y = y;
+		body.x = x;
+		body.y = y;
+	}
+	
+	public void setDrawable(boolean drawable) {
+		this.drawable = drawable;
 	}
 
 	public void setBody(float width, float height) {
 		this.width = width;
 		this.height = height;
-	}
-	
-	public void setDrawable(boolean drawable) {
-		this.drawable = drawable;
 	}
 
 	public Rectangle getBody() {
@@ -56,11 +54,11 @@ public class GameObject {
 	}
 	
 	public float getx() {
-		return x;
+		return body.x;
 	}
 	
 	public float gety() {
-		return y;
+		return body.y;
 	}
 
 	public void setOffset(float xOffset, float yOffset) {
@@ -87,7 +85,7 @@ public class GameObject {
 	public void render(SpriteBatch sb) {
 		if (drawable) {
 			sb.begin();
-			sb.draw(animation.getFrame(), x + xOffset, y + yOffset);
+			sb.draw(animation.getFrame(), body.x + xOffset, body.y + yOffset);
 			sb.end();
 		}
 	}
@@ -95,10 +93,10 @@ public class GameObject {
 	public void render(ShapeRenderer sr) {
 		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 0, 1);
-		sr.rect(x, y, width, height);
+		sr.rect(body.x, body.y, width, height);
 		if (drawable) {
 			sr.setColor(0, 1, 0, 1);
-			sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
+			sr.rect(body.x + xOffset, body.y + yOffset, spriteWidth, spriteHeight);
 		}
 		sr.end();
 	}

@@ -32,18 +32,19 @@ public class Player extends GameObject {
 		ground = false;
 		vx = 0;
 		vy = 0;
-		xprojection = new Rectangle(x, y, width, height);
-		yprojection = new Rectangle(x, y, width, height);
+		xprojection = new Rectangle(body.x, body.y, width, height);
+		yprojection = new Rectangle(body.x, body.y, width, height);
 		xcollision = null;
 		ycollision = null;
 		debug = true;
 	}
 
 	private void load() {
-		//TextureRegion sprite[] = new TextureRegion[3];
-		//for (int i = 0; i < 3; i++) {
-			//sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
-		//}
+		// TextureRegion sprite[] = new TextureRegion[3];
+		// for (int i = 0; i < 3; i++) {
+		// sprite[i] = new TextureRegion(new
+		// Texture(Gdx.files.internal("img/block" + i + ".png")));
+		// }
 		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
 		setAnimation(sprite, 1 / 3f);
 		setOffset(0, 0);
@@ -55,11 +56,7 @@ public class Player extends GameObject {
 		}
 	}
 
-	private void moveDown() {
-		if (ground) {
-			vy = -320;
-		}
-	}
+	private void moveDown() {}
 
 	private void moveLeft() {
 		if (vx > -MOVE_SPEED) {
@@ -104,13 +101,11 @@ public class Player extends GameObject {
 	public void update() {
 		collisions();
 		if (vx == 0) {
-			x = Math.round(x / 4) * 4;
+			body.x = Math.round(body.x / 4) * 4;
 		}
 		animation.update();
-		x += vx * GameConstants.SPF;
-		y += vy * GameConstants.SPF;
-		body.x = x;
-		body.y = y;
+		body.x += vx * GameConstants.SPF;
+		body.y += vy * GameConstants.SPF;
 	}
 
 	public void keyListener() {
@@ -135,18 +130,17 @@ public class Player extends GameObject {
 	}
 
 	private void collisions() {
-		xprojection.setPosition(x + vx * GameConstants.SPF * 2, y);
-		yprojection.setPosition(x, y + vy * GameConstants.SPF * 2);
+		xprojection.setPosition(body.x + vx * GameConstants.SPF * 2, body.y);
+		yprojection.setPosition(body.x, body.y + vy * GameConstants.SPF * 2);
 		if (vx != 0 || vy != 0) {
 			xcollision = GameScreen.blockIn(xprojection);
 			ycollision = GameScreen.blockIn(yprojection);
-		}
-		else {
+		} else {
 			xcollision = null;
 			ycollision = null;
 		}
 		if (ground) {
-			Block beneath = GameScreen.blockIn(new Rectangle(x, y - 1, width, height));
+			Block beneath = GameScreen.blockIn(new Rectangle(body.x, body.y - 1, width, height));
 			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
 				ground = false;
 			}
@@ -155,14 +149,14 @@ public class Player extends GameObject {
 			vy -= GameConstants.GRAVITY * GameConstants.SPF;
 		}
 		if (ycollision != null) {
-			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
+			if (!(ycollision instanceof Platform) || body.y > ycollision.getBody().y + ycollision.getBody().height) {
 				if (vy > 0) {
 					vy = 0;
-					y = ycollision.getBody().y - height;
+					body.y = ycollision.getBody().y - height;
 				}
 				if (vy < 0) {
 					vy = 0;
-					y = ycollision.getBody().y + ycollision.getBody().height;
+					body.y = ycollision.getBody().y + ycollision.getBody().height;
 					ground = true;
 				}
 			}
@@ -173,14 +167,14 @@ public class Player extends GameObject {
 					((Slab) xcollision).push(1);
 				}
 				vx = 0;
-				x = xcollision.getBody().x - width;
+				body.x = xcollision.getBody().x - width;
 			}
 			if (vx < 0) {
 				if (xcollision instanceof Slab && ground) {
 					((Slab) xcollision).push(-1);
 				}
 				vx = 0;
-				x = xcollision.getBody().x + xcollision.getBody().width;
+				body.x = xcollision.getBody().x + xcollision.getBody().width;
 			}
 		}
 	}

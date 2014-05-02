@@ -33,37 +33,35 @@ public class Slab extends Block {
 		if (pushTimer > 0) {
 			if (pushTimer > GameConstants.SPF) {
 				if ((direction == 1 && !lockedRight) | (direction == -1 && !lockedLeft)) {
-					x += pushTimer * direction * dx * GameConstants.SPF;
+					body.x += pushTimer * direction * dx * GameConstants.SPF;
 				}
 				pushTimer -= GameConstants.SPF;
 			} else {
 				pushTimer = 0;
-				x = Math.round(x / 16) * 16;
-				lockedRight = GameScreen.blockIn(new Rectangle(x + width, y, 16, height)) != null;
-				lockedLeft = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height)) != null;
+				body.x = Math.round(body.x / 16) * 16;
+				lockedRight = GameScreen.blockIn(new Rectangle(body.x + width, body.y, 16, height)) != null;
+				lockedLeft = GameScreen.blockIn(new Rectangle(body.x - 16, body.y, 16, height)) != null;
 			}
 		}
 		if (dy == 0) {
-			below = GameScreen.blockIn(new Rectangle(x, y - 1, width, 1));
+			below = GameScreen.blockIn(new Rectangle(body.x, body.y - 1, width, 1));
 		} else {
-			below = GameScreen.blockIn(new Rectangle(x, y + dy * GameConstants.SPF, width, -dy * GameConstants.SPF));
+			below = GameScreen.blockIn(new Rectangle(body.x, body.y + dy * GameConstants.SPF, width, -dy * GameConstants.SPF));
 		}
 		if (below == null) {
 			dy -= GameConstants.GRAVITY * GameConstants.SPF;
 		} else {
-			y = below.getBody().y + below.getBody().height;
+			body.y = below.getBody().y + below.getBody().height;
 			dy = 0;
 		}
-		y += dy * GameConstants.SPF;
-		body.x = x;
-		body.y = y;
+		body.y += dy * GameConstants.SPF;
 	}
 
 	public void push(int direction) {
 		this.direction = direction;
 		if (pushTimer == 0 && dy == 0) {
-			lockedRight = GameScreen.blockIn(new Rectangle(x + width, y, 16, height)) != null;
-			lockedLeft = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height)) != null;
+			lockedRight = GameScreen.blockIn(new Rectangle(body.x + width, body.y, 16, height)) != null;
+			lockedLeft = GameScreen.blockIn(new Rectangle(body.x - 16, body.y, 16, height)) != null;
 			pushTimer = 0.4f;
 		}
 	}
