@@ -32,8 +32,8 @@ public class HUDCountable extends HUDImage {
 
 	public void render(SpriteBatch sb, OrthographicCamera cam) {
 		if (xLoop || yLoop) {
-			for (int i = 0; i < MathUtils.ceil(GameConstants.SCREEN_WIDTH / width); i++) {
-				for (int j = 0; j < MathUtils.ceil(GameConstants.SCREEN_HEIGHT / height); j++) {
+			for (int i = 0; i < MathUtils.ceil(Vars.SCREEN_WIDTH / width); i++) {
+				for (int j = 0; j < MathUtils.ceil(Vars.SCREEN_HEIGHT / height); j++) {
 					if (xLoop && yLoop) {
 						sb.draw(image.getFrame(), i * width + cam.position.x - cam.viewportWidth / 2, j * height + cam.position.y - cam.viewportHeight / 2);
 					} else if (xLoop) {

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class HUDImage extends HUDObject {
-	protected Animation image;
+	protected Sprite image;
 	protected float width;
 	protected float height;
 
@@ -15,7 +15,7 @@ public class HUDImage extends HUDObject {
 
 	public HUDImage(TextureRegion reg[], float x, float y) {
 		super(x, y);
-		image = new Animation();
+		image = new Sprite();
 		setSprite(reg);
 	}
 
@@ -24,7 +24,7 @@ public class HUDImage extends HUDObject {
 	}
 
 	public void setSprite(TextureRegion reg[]) {
-		image.setFrames(reg, 1 / 12f);
+		image.setSprite(reg);
 		width = reg[0].getRegionWidth();
 		height = reg[0].getRegionHeight();
 	}

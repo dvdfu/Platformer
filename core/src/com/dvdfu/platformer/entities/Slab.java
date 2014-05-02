@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.dvdfu.platformer.handlers.GameConstants;
+import com.dvdfu.platformer.handlers.Vars;
 import com.dvdfu.platformer.states.GameScreen;
 
 public class Slab extends Block {
@@ -25,43 +25,44 @@ public class Slab extends Block {
 		lockedLeft = false;
 		lockedRight = false;
 		below = null;
-		setDrawable(true);
-		setAnimation(new TextureRegion(new Texture(Gdx.files.internal("img/block2.png"))), 0);
+		sprite.setSprite(new TextureRegion(new Texture(Gdx.files.internal("img/block2.png"))));
 	}
 
 	public void update() {
 		if (pushTimer > 0) {
-			if (pushTimer > GameConstants.SPF) {
+			if (pushTimer > Vars.SPF) {
 				if ((direction == 1 && !lockedRight) | (direction == -1 && !lockedLeft)) {
-					body.x += pushTimer * direction * dx * GameConstants.SPF;
+					x += pushTimer * direction * dx * Vars.SPF;
 				}
-				pushTimer -= GameConstants.SPF;
+				pushTimer -= Vars.SPF;
 			} else {
 				pushTimer = 0;
-				body.x = Math.round(body.x / 16) * 16;
-				lockedRight = GameScreen.blockIn(new Rectangle(body.x + width, body.y, 16, height)) != null;
-				lockedLeft = GameScreen.blockIn(new Rectangle(body.x - 16, body.y, 16, height)) != null;
+				x = Math.round(x / 16) * 16;
+				lockedRight = GameScreen.blockIn(new Rectangle(x + width, y, 16, height)) != null;
+				lockedLeft = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height)) != null;
 			}
 		}
 		if (dy == 0) {
-			below = GameScreen.blockIn(new Rectangle(body.x, body.y - 1, width, 1));
+			below = GameScreen.blockIn(new Rectangle(x, y - 1, width, 1));
 		} else {
-			below = GameScreen.blockIn(new Rectangle(body.x, body.y + dy * GameConstants.SPF, width, -dy * GameConstants.SPF));
+			below = GameScreen.blockIn(new Rectangle(x, y + dy * Vars.SPF, width, -dy * Vars.SPF));
 		}
 		if (below == null) {
-			dy -= GameConstants.GRAVITY * GameConstants.SPF;
+			dy -= Vars.GRAVITY * Vars.SPF;
 		} else {
-			body.y = below.getBody().y + below.getBody().height;
+			y = below.getBody().y + below.getBody().height;
 			dy = 0;
 		}
-		body.y += dy * GameConstants.SPF;
+		y += dy * Vars.SPF;
+		body.x = x;
+		body.y = y;
 	}
 
 	public void push(int direction) {
 		this.direction = direction;
 		if (pushTimer == 0 && dy == 0) {
-			lockedRight = GameScreen.blockIn(new Rectangle(body.x + width, body.y, 16, height)) != null;
-			lockedLeft = GameScreen.blockIn(new Rectangle(body.x - 16, body.y, 16, height)) != null;
+			lockedRight = GameScreen.blockIn(new Rectangle(x + width, y, 16, height)) != null;
+			lockedLeft = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height)) != null;
 			pushTimer = 0.4f;
 		}
 	}

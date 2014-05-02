@@ -7,24 +7,26 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 
 public class GameObject {
-	protected boolean drawable;
+	protected Sprite sprite;
 	protected Rectangle body;
+	protected float x;
+	protected float y;
 	protected float width;
 	protected float height;
-	protected Animation animation;
 	protected float xOffset;
 	protected float yOffset;
 	protected float spriteWidth;
 	protected float spriteHeight;
 
 	public GameObject() {
-		this(0, 0, 0, 0, false);
+		this(0, 0, 0, 0);
 	}
 
-	public GameObject(float x, float y, float width, float height, boolean imaged) {
+	public GameObject(float x, float y, float width, float height) {
+		this.x = x;
+		this.y = y;
 		this.width = width;
 		this.height = height;
-		this.drawable = imaged;
 		body = new Rectangle(x, y, width, height);
 		body.x = x;
 		body.y = y;
@@ -32,16 +34,17 @@ public class GameObject {
 		yOffset = 0;
 		spriteWidth = 0;
 		spriteHeight = 0;
-		animation = new Animation();
+		sprite = new Sprite();
 	}
 
 	public void setPosition(float x, float y) {
-		body.x = x;
-		body.y = y;
+		this.x = x;
+		this.y = y;
 	}
-	
-	public void setDrawable(boolean drawable) {
-		this.drawable = drawable;
+
+	public void setOffset(float xOffset, float yOffset) {
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
 	}
 
 	public void setBody(float width, float height) {
@@ -52,40 +55,29 @@ public class GameObject {
 	public Rectangle getBody() {
 		return body;
 	}
-	
+
 	public float getx() {
-		return body.x;
+		return x;
+	}
+
+	public float gety() {
+		return y;
+	}
+
+	public Sprite getSprite() {
+		return sprite;
 	}
 	
-	public float gety() {
-		return body.y;
-	}
-
-	public void setOffset(float xOffset, float yOffset) {
-		drawable = true;
-		this.xOffset = xOffset;
-		this.yOffset = yOffset;
-	}
-
-	public void setAnimation(TextureRegion reg, float delay) {
-		setAnimation(new TextureRegion[] { reg }, delay);
-	}
-
-	public void setAnimation(TextureRegion[] reg, float delay) {
-		drawable = true;
-		animation.setFrames(reg, delay);
-		spriteWidth = reg[0].getRegionWidth();
-		spriteHeight = reg[0].getRegionHeight();
-	}
-
 	public void update() {
-		animation.update();
+		sprite.update();
+		body.x = x;
+		body.y = y;
 	}
 
 	public void render(SpriteBatch sb) {
-		if (drawable) {
+		if (sprite != null) {
 			sb.begin();
-			sb.draw(animation.getFrame(), body.x + xOffset, body.y + yOffset);
+			sb.draw(sprite.getFrame(), x + xOffset, y + yOffset);
 			sb.end();
 		}
 	}
@@ -93,10 +85,10 @@ public class GameObject {
 	public void render(ShapeRenderer sr) {
 		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 0, 1);
-		sr.rect(body.x, body.y, width, height);
-		if (drawable) {
+		sr.rect(x, y, width, height);
+		if (sprite != null) {
 			sr.setColor(0, 1, 0, 1);
-			sr.rect(body.x + xOffset, body.y + yOffset, spriteWidth, spriteHeight);
+			sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
 		}
 		sr.end();
 	}

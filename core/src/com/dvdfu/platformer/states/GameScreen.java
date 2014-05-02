@@ -20,7 +20,7 @@ import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
-import com.dvdfu.platformer.handlers.GameConstants;
+import com.dvdfu.platformer.handlers.Vars;
 import com.dvdfu.platformer.handlers.HUD;
 import com.dvdfu.platformer.handlers.HUDCountable;
 import com.dvdfu.platformer.handlers.HUDText;
@@ -48,7 +48,7 @@ public class GameScreen extends Game {
 		Gdx.input.setInputProcessor(new InputProcessor());
 		am = new AssetManager();
 		am.load("img/bg.png", Texture.class);
-		view = new CameraController(GameConstants.SCREEN_WIDTH, GameConstants.SCREEN_HEIGHT);
+		view = new CameraController(Vars.SCREEN_WIDTH, Vars.SCREEN_HEIGHT);
 		view.setPan(20);
 		view.setZoom(1f);
 		cam = new OrthographicCamera();

@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com.dvdfu.platformer.handlers.GameConstants;
+import com.dvdfu.platformer.handlers.Vars;
 import com.dvdfu.platformer.handlers.GameObject;
 import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.states.GameScreen;
@@ -27,26 +27,25 @@ public class Player extends GameObject {
 	private boolean debug;
 
 	public Player() {
-		super(320, 320, 32, 32, true);
+		super(320, 320, 32, 32);
 		load();
 		ground = false;
 		vx = 0;
 		vy = 0;
-		xprojection = new Rectangle(body.x, body.y, width, height);
-		yprojection = new Rectangle(body.x, body.y, width, height);
+		xprojection = new Rectangle(x, y, width, height);
+		yprojection = new Rectangle(x, y, width, height);
 		xcollision = null;
 		ycollision = null;
 		debug = true;
 	}
 
 	private void load() {
-		// TextureRegion sprite[] = new TextureRegion[3];
-		// for (int i = 0; i < 3; i++) {
-		// sprite[i] = new TextureRegion(new
-		// Texture(Gdx.files.internal("img/block" + i + ".png")));
-		// }
+		//TextureRegion sprite[] = new TextureRegion[3];
+		//for (int i = 0; i < 3; i++) {
+			//sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/block" + i + ".png")));
+		//}
 		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
-		setAnimation(sprite, 1 / 3f);
+		this.sprite.setSprite(sprite);
 		setOffset(0, 0);
 	}
 
@@ -56,7 +55,11 @@ public class Player extends GameObject {
 		}
 	}
 
-	private void moveDown() {}
+	private void moveDown() {
+		if (ground) {
+			vy = -320;
+		}
+	}
 
 	private void moveLeft() {
 		if (vx > -MOVE_SPEED) {
@@ -101,11 +104,13 @@ public class Player extends GameObject {
 	public void update() {
 		collisions();
 		if (vx == 0) {
-			body.x = Math.round(body.x / 4) * 4;
+			x = Math.round(x / 4) * 4;
 		}
-		animation.update();
-		body.x += vx * GameConstants.SPF;
-		body.y += vy * GameConstants.SPF;
+		sprite.update();
+		x += vx * Vars.SPF;
+		y += vy * Vars.SPF;
+		body.x = x;
+		body.y = y;
 	}
 
 	public void keyListener() {
@@ -130,33 +135,34 @@ public class Player extends GameObject {
 	}
 
 	private void collisions() {
-		xprojection.setPosition(body.x + vx * GameConstants.SPF * 2, body.y);
-		yprojection.setPosition(body.x, body.y + vy * GameConstants.SPF * 2);
+		xprojection.setPosition(x + vx * Vars.SPF * 2, y);
+		yprojection.setPosition(x, y + vy * Vars.SPF * 2);
 		if (vx != 0 || vy != 0) {
 			xcollision = GameScreen.blockIn(xprojection);
 			ycollision = GameScreen.blockIn(yprojection);
-		} else {
+		}
+		else {
 			xcollision = null;
 			ycollision = null;
 		}
 		if (ground) {
-			Block beneath = GameScreen.blockIn(new Rectangle(body.x, body.y - 1, width, height));
+			Block beneath = GameScreen.blockIn(new Rectangle(x, y - 1, width, height));
 			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
 				ground = false;
 			}
 		}
 		if (!ground) {
-			vy -= GameConstants.GRAVITY * GameConstants.SPF;
+			vy -= Vars.GRAVITY * Vars.SPF;
 		}
 		if (ycollision != null) {
-			if (!(ycollision instanceof Platform) || body.y > ycollision.getBody().y + ycollision.getBody().height) {
+			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
 				if (vy > 0) {
 					vy = 0;
-					body.y = ycollision.getBody().y - height;
+					y = ycollision.getBody().y - height;
 				}
 				if (vy < 0) {
 					vy = 0;
-					body.y = ycollision.getBody().y + ycollision.getBody().height;
+					y = ycollision.getBody().y + ycollision.getBody().height;
 					ground = true;
 				}
 			}
@@ -167,14 +173,14 @@ public class Player extends GameObject {
 					((Slab) xcollision).push(1);
 				}
 				vx = 0;
-				body.x = xcollision.getBody().x - width;
+				x = xcollision.getBody().x - width;
 			}
 			if (vx < 0) {
 				if (xcollision instanceof Slab && ground) {
 					((Slab) xcollision).push(-1);
 				}
 				vx = 0;
-				body.x = xcollision.getBody().x + xcollision.getBody().width;
+				x = xcollision.getBody().x + xcollision.getBody().width;
 			}
 		}
 	}
