@@ -53,12 +53,20 @@ public class GameObject {
 		return body;
 	}
 
-	public float getx() {
+	public float getX() {
 		return x;
 	}
 
-	public float gety() {
+	public float getY() {
 		return y;
+	}
+
+	public float getWidth() {
+		return width;
+	}
+
+	public float getHeight() {
+		return height;
 	}
 
 	public Sprite getSprite() {

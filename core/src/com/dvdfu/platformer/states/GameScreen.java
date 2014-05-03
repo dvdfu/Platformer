@@ -13,11 +13,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
 import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
+import com.dvdfu.platformer.entities.Player2;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Vars;
@@ -32,7 +34,7 @@ public class GameScreen extends Game {
 	public static AssetManager am;
 	private SpriteBatch sb;
 	private ShapeRenderer sr;
-	private Player p;
+	private Player2 p;
 	private OrthogonalTiledMapRenderer level;
 	private TiledMap map;
 	private TextureRegion bg;
@@ -54,7 +56,7 @@ public class GameScreen extends Game {
 		cam = new OrthographicCamera();
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
-		p = new Player();
+		p = new Player2();
 		map = new TmxMapLoader().load("data/untitled.tmx");
 		blockArray = new Array<Block>();
 		createBlocks();
@@ -206,16 +208,15 @@ public class GameScreen extends Game {
 		sr.dispose();
 	}
 
-	private void updateKeys() {
-		p.keyListener();
-	}
+	//private void updateKeys() {
+		//p.keyListener();
+	//}
 
 	public void render() {
 		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
-		updateKeys();
-		Input.update();
+		//updateKeys();
 		p.update();
-		view.follow(p.getx(), p.gety());
+		view.follow(p.getX(), p.getY());
 		view.update();
 		cam = view.getCam();
 		level.setView(cam);
@@ -229,7 +230,6 @@ public class GameScreen extends Game {
 		level.render();
 		p.render(sb);
 		//for (Block b : blockArray) { b.render(sr); }
-		p.render(sr);
 		s.update();
 		s.render(sb);
 		s2.update();
@@ -237,15 +237,21 @@ public class GameScreen extends Game {
 		h.setView(cam);
 		h.render(sb);
 		h.update();
+		p.render(sr);
+		Input.update();
 	}
 
 	public static Block blockIn(Rectangle r) {
+		Block best = null;
 		for (Block b : blockArray) {
 			if (b.getBody().overlaps(r)) {
-				return b;
+				if (best != null) {
+				} else {
+					best = b;
+				}
 			}
 		}
-		return null;
+		return best;
 	}
 
 	public void resize(int width, int height) {}
