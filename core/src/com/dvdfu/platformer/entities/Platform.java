@@ -12,7 +12,7 @@ public class Platform extends Block {
 	public void render(ShapeRenderer sr) {
 		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 1, 1);
-		sr.rect(body.x, body.y, width, height);
+		sr.rect(x, y, width, height);
 		sr.end();
 	}
 }

@@ -16,8 +16,10 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
+import com.dvdfu.platformer.entities.Moving;
 import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
+import com.dvdfu.platformer.entities.Ramp;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Vars;
@@ -44,6 +46,7 @@ public class GameScreen extends Game {
 	private HUDCountable hc;
 	private HUDText t;
 	private boolean debug;
+	private Moving m;
 
 	public void create() {
 		Gdx.input.setInputProcessor(new InputProcessor());
@@ -60,6 +63,7 @@ public class GameScreen extends Game {
 		blockArray = new Array<Block>();
 		createBlocks("blocks");
 		createPlatforms("platforms");
+		createRamps("ramps");
 		// bg = new TextureRegion(new
 		// Texture(Gdx.files.internal("img/bg.png")));
 		level = new OrthogonalTiledMapRenderer(map, 1f);
@@ -67,6 +71,8 @@ public class GameScreen extends Game {
 		blockArray.add(s);
 		s2 = new Slab(272, 160, 32, 32);
 		blockArray.add(s2);
+		m = new Moving(400, 240, 64, 16);
+		blockArray.add(m);
 		h = new HUD();
 		TextureRegion sprite[] = new TextureRegion[2];
 		for (int i = 0; i < 2; i++) {
@@ -178,6 +184,24 @@ public class GameScreen extends Game {
 			}
 		}
 	}
+	
+	private void createRamps(String layerName) {
+		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
+		int layerWidth = layer.getWidth();
+		int layerHeight = layer.getHeight();
+		// init grid arrays
+		for (int y = 0; y < layerHeight; y++) {
+			for (int x = 0; x < layerWidth; x++) {
+				if (layer.getCell(x, y) != null) {
+					if (layer.getCell(x, y).getTile().getProperties().get("slope").equals("1")) {
+						blockArray.add(new Ramp(x * 16, y * 16, 16, 16, 1));
+					} else {
+						blockArray.add(new Ramp(x * 16, y * 16, 16, 16, -1));
+					}
+				}
+			}
+		}
+	}
 
 	public void dispose() {
 		sb.dispose();
@@ -186,6 +210,10 @@ public class GameScreen extends Game {
 
 	public void render() {
 		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
+		s.update();
+		s2.update();
+		m.update();
+		h.update();
 		p.update();
 		view.follow(p.getX() + p.getWidth() / 2, p.getY() + p.getHeight() / 2);
 		view.update();
@@ -198,10 +226,7 @@ public class GameScreen extends Game {
 		// sb.begin();
 		// sb.draw(bg, cam.position.x - 320, 0);
 		// sb.end();
-		s.update();
-		s2.update();
 		h.setView(cam);
-		h.update();
 		if (debug) {
 			for (Block b : blockArray) {
 				b.render(sr);

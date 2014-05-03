@@ -2,18 +2,43 @@
 <map version="1.0" orientation="orthogonal" width="60" height="30" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="sffl3d" tilewidth="16" tileheight="16">
   <image source="tile.png" width="304" height="192"/>
+  <tile id="44">
+   <properties>
+    <property name="slope" value="1"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="slope" value="-1"/>
+   </properties>
+  </tile>
+  <tile id="62">
+   <properties>
+    <property name="slope" value="1"/>
+   </properties>
+  </tile>
+  <tile id="66">
+   <properties>
+    <property name="slope" value="-1"/>
+   </properties>
+  </tile>
  </tileset>
  <tileset firstgid="229" name="block1" tilewidth="16" tileheight="16">
   <image source="block1.png" width="32" height="32"/>
  </tileset>
  <layer name="blocks" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJztmUsKwCAMBT1G73+3fo5RXQgSbI0aNYkZCOlCC89RCvV0zl2+zk367evZqMfc2oF+tWN+dWN+dWN+dWN+dWN+dVPrV/o+qPUrfR+0+pXqudUvpeeD6D0Yev1i5s3MU6LX79e8v4wr89v3dw6rHEO/pfNZGpfmgJk4nGPs/8lIaRzMW5NxxnqM8JsrLozwyzVrAOsX29OM8JkD1PcLuXxcsgao/Urpq+9zZvcXzsSdjA==
+   eJztmcENgCAMRRnDddh/DtQx9KAJaQqlYEFKf9LUQ0l8vnIyOOf2u8Ii/bjrXKi/3NoD/WqP+dUd86s75ld3zK/umF/d4fqdfQ+4ft+5TfKlhOJdvd/ZPPunav1+6Vl6V3xUrX5Lzo3cfQ+q1W/qXI6xFz9krfE7SzDWGr9fRdJxihXzS91Pai7mgEw99jjHivml7ic1B3k5jK3fg2KV8ouVdEpYpfz+lZXjt7THjPB5NCvHb2nH+P7CKuF3lj76f07vfgHBwbTX
   </data>
  </layer>
  <layer name="platforms" width="60" height="30">
   <data encoding="base64" compression="zlib">
    eJzt00EKwDAIBMCA//9zr6HYQgPBVGZA8BbR7BgAdBLVA9BCTHWCU+b4s0iKWm7wXfaPd+3x6S35eWc3zKoytJpfmYce4tbLMQDkLm9MAJ0=
+  </data>
+ </layer>
+ <layer name="ramps" width="60" height="30">
+  <data encoding="base64" compression="zlib">
+   eJztz8EJACAMBEE782H/PfmQNKCCMcz8D25bAwAAYMd4fWBDP9z/1HzaGn5ovtUaMjffbs1Ma01aa9Jak9aatMIyARiKBH8=
   </data>
  </layer>
 </map>

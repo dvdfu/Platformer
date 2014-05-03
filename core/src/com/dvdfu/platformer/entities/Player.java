@@ -123,7 +123,6 @@ public class Player extends GameObject {
 			} else {
 				yCollision = GameScreen.blockIn(yProjection);
 				if (yCollision != null && !(yCollision instanceof Platform)) {
-					changeYState(YStates.FALLING);
 					vy = 0;
 					y = yCollision.getY() - height;
 				}
@@ -133,16 +132,24 @@ public class Player extends GameObject {
 			vy -= Vars.GRAVITY * Vars.SPF;
 			yCollision = GameScreen.blockIn(yProjection);
 			if (yCollision != null) {
-				if (!(yCollision instanceof Platform) || y - vy * Vars.SPF > yCollision.getY() + yCollision.getHeight()) {
+				if (yCollision instanceof Platform) {
+					if (y - vy * Vars.SPF > yCollision.getY() + yCollision.getHeight()) {
+						changeYState(YStates.GROUND);
+					}
+				} else {
 					changeYState(YStates.GROUND);
 				}
 			}
 			break;
 		case GROUND:
-			yCollision = GameScreen.blockIn(new Rectangle(x, y - 1, width, 1));
+			yCollision = GameScreen.blockIn(new Rectangle(x, y - 16, width, 16));
 			if (yCollision == null) {
 				changeYState(YStates.FALLING);
 			} else {
+				if (yCollision instanceof Moving) {
+					vy = 0;
+					y = yCollision.getY() + yCollision.getHeight();
+				}
 				if (jump) {
 					yCollision = GameScreen.blockIn(new Rectangle(x, y + height, width, 1));
 					if (yCollision == null || yCollision instanceof Platform) {
@@ -174,6 +181,9 @@ public class Player extends GameObject {
 		x += vx * Vars.SPF;
 		body.x = x;
 		xProjection.set(x + vx * Vars.SPF, y, width, height);
+		if (yCollision instanceof Moving && yState == YStates.GROUND) {
+			x += ((Moving) yCollision).getVX() * Vars.SPF;
+		}
 		switch (xState) {
 		case IDLE:
 			if (!(moveLeft == moveRight)) {
@@ -339,11 +349,11 @@ public class Player extends GameObject {
 		}
 		sprite.update();
 	}
-	
+
 	public void update() {
 		keyListener();
-		handleXState();
 		handleYState();
+		handleXState();
 		handleSprite();
 	}
 
