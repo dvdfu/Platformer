@@ -13,13 +13,11 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.entities.Block;
 import com.dvdfu.platformer.entities.Platform;
 import com.dvdfu.platformer.entities.Player;
-import com.dvdfu.platformer.entities.Player2;
 import com.dvdfu.platformer.entities.Slab;
 import com.dvdfu.platformer.handlers.CameraController;
 import com.dvdfu.platformer.handlers.Vars;
@@ -34,10 +32,10 @@ public class GameScreen extends Game {
 	public static AssetManager am;
 	private SpriteBatch sb;
 	private ShapeRenderer sr;
-	private Player2 p;
+	private Player p;
 	private OrthogonalTiledMapRenderer level;
 	private TiledMap map;
-	private TextureRegion bg;
+	// private TextureRegion bg;
 	private CameraController view;
 	private OrthographicCamera cam;
 	private Slab s;
@@ -45,6 +43,7 @@ public class GameScreen extends Game {
 	private HUD h;
 	private HUDCountable hc;
 	private HUDText t;
+	private boolean debug;
 
 	public void create() {
 		Gdx.input.setInputProcessor(new InputProcessor());
@@ -56,12 +55,13 @@ public class GameScreen extends Game {
 		cam = new OrthographicCamera();
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
-		p = new Player2();
+		p = new Player();
 		map = new TmxMapLoader().load("data/untitled.tmx");
 		blockArray = new Array<Block>();
-		createBlocks();
-		createPlatforms();
-		bg = new TextureRegion(new Texture(Gdx.files.internal("img/bg.png")));
+		createBlocks("blocks");
+		createPlatforms("platforms");
+		// bg = new TextureRegion(new
+		// Texture(Gdx.files.internal("img/bg.png")));
 		level = new OrthogonalTiledMapRenderer(map, 1f);
 		s = new Slab(160, 400, 32, 32);
 		blockArray.add(s);
@@ -69,19 +69,21 @@ public class GameScreen extends Game {
 		blockArray.add(s2);
 		h = new HUD();
 		TextureRegion sprite[] = new TextureRegion[2];
-		for (int i = 0; i < 2; i++) {;
+		for (int i = 0; i < 2; i++) {
+			;
 			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/heart1.png")), i * 32, 0, 32, 32);
 		}
 		hc = new HUDCountable(sprite, 64, 64, -2, 0);
 		hc.setNum(4);
-		hc.setDelay(1/2f);
+		hc.setDelay(1 / 2f);
 		h.addElement(hc);
 		t = new HUDText("Lives: ", 16, 88);
 		h.addElement(t);
+		debug = true;
 	}
-	
-	private void createBlocks() {
-		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 2");
+
+	private void createBlocks(String layerName) {
+		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
 		int layerWidth = layer.getWidth();
 		int layerHeight = layer.getHeight();
 		boolean[][] gridCell = new boolean[layerWidth][layerHeight];
@@ -98,22 +100,15 @@ public class GameScreen extends Game {
 			}
 		}
 		// mark inner cells
-		for (int y = 1; y < layerHeight - 1; y++) {
-			for (int x = 1; x < layerWidth - 1; x++) {
-				if (gridCell[x - 1][y] && gridCell[x + 1][y] && gridCell[x][y - 1] && gridCell[x][y + 1]) {
-					gridMark[x][y] = true;
-				}
-			}
-		}
-		// remove inner cells, reset marked cells 
-		for (int y = 1; y < layerHeight - 1; y++) {
-			for (int x = 1; x < layerWidth - 1; x++) {
-				if (gridMark[x][y] && gridCell[x][y]) {
-					gridCell[x][y] = false;
-				}
-				gridMark[x][y] = false;
-			}
-		}
+		/*
+		 * for (int y = 1; y < layerHeight - 1; y++) { for (int x = 1; x <
+		 * layerWidth - 1; x++) { if (gridCell[x - 1][y] && gridCell[x + 1][y]
+		 * && gridCell[x][y - 1] && gridCell[x][y + 1]) { gridMark[x][y] = true;
+		 * } } } // remove inner cells, reset marked cells for (int y = 1; y <
+		 * layerHeight - 1; y++) { for (int x = 1; x < layerWidth - 1; x++) { if
+		 * (gridMark[x][y] && gridCell[x][y]) { gridCell[x][y] = false; }
+		 * gridMark[x][y] = false; } }
+		 */
 		// chain consecutive cells
 		for (int y = 0; y < layerHeight; y++) {
 			for (int x = 0; x < layerWidth; x++) {
@@ -150,8 +145,8 @@ public class GameScreen extends Game {
 		}
 	}
 
-	private void createPlatforms() {
-		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 3");
+	private void createPlatforms(String layerName) {
+		TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
 		int layerWidth = layer.getWidth();
 		int layerHeight = layer.getHeight();
 		boolean[][] gridCell = new boolean[layerWidth][layerHeight];
@@ -183,21 +178,16 @@ public class GameScreen extends Game {
 			}
 		}
 	}
-	
+
 	public void dispose() {
 		sb.dispose();
 		sr.dispose();
 	}
 
-	//private void updateKeys() {
-		//p.keyListener();
-	//}
-
 	public void render() {
 		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
-		//updateKeys();
 		p.update();
-		view.follow(p.getX(), p.getY());
+		view.follow(p.getX() + p.getWidth() / 2, p.getY() + p.getHeight() / 2);
 		view.update();
 		cam = view.getCam();
 		level.setView(cam);
@@ -205,21 +195,29 @@ public class GameScreen extends Game {
 		sr.setProjectionMatrix(cam.combined);
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		//sb.begin();
-		//sb.draw(bg, cam.position.x - 320, 0);
-		//sb.end();
-		//level.render();
-		p.render(sb);
+		// sb.begin();
+		// sb.draw(bg, cam.position.x - 320, 0);
+		// sb.end();
 		s.update();
 		s2.update();
-		for (Block b : blockArray) {
-			//b.render(sb);
-			b.render(sr);
-			}
 		h.setView(cam);
-		h.render(sb);
 		h.update();
-		p.render(sr);
+		if (debug) {
+			for (Block b : blockArray) {
+				b.render(sr);
+			}
+			p.render(sr);
+		} else {
+			level.render();
+			for (Block b : blockArray) {
+				b.render(sb);
+			}
+			h.render(sb);
+			p.render(sb);
+		}
+		if (Input.KeyPressed(Input.ARROW_DOWN)) {
+			debug = !debug;
+		}
 		Input.update();
 	}
 

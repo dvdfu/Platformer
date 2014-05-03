@@ -6,9 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.dvdfu.platformer.handlers.Vars;
 import com.dvdfu.platformer.handlers.GameObject;
 import com.dvdfu.platformer.handlers.Input;
@@ -19,204 +18,356 @@ public class Player extends GameObject {
 	final private float JUMP_SPEED = 400f;
 	final private float AX = 10f;
 	final private float AX_AIR = 2f;
-	private boolean ground;
 	private float vx;
 	private float vy;
-	private float px;
-	private float py;
-	private Rectangle xprojection;
-	private Rectangle yprojection;
-	private Block xcollision;
-	private Block ycollision;
-	private boolean debug;
-	private Array<Vector2> a = new Array<Vector2>(240);
+	private int keyUp;
+	private int keyLeft;
+	private int keyRight;
+	private boolean jump;
+	private boolean moveLeft;
+	private boolean moveRight;
+	private boolean forward;
+	private Block yCollision = null;
+	private Block xCollision = null;
+	private Rectangle xProjection = new Rectangle();
+	private Rectangle yProjection = new Rectangle();
+	private TextureRegion sprIdleL[];
+	private TextureRegion sprIdleR[];
+	private TextureRegion sprRunL[];
+	private TextureRegion sprRunR[];
+	private TextureRegion sprPushL[];
+	private TextureRegion sprPushR[];
+	private TextureRegion sprJumpL[];
+	private TextureRegion sprJumpR[];
+	private TextureRegion sprFallL[];
+	private TextureRegion sprFallR[];
+
+	private enum YStates {
+		GROUND, JUMPING, FALLING
+	};
+
+	private enum XStates {
+		IDLE, SLOWING, MOVING, PUSHING
+	};
+
+	private YStates yState;
+	private XStates xState;
 
 	public Player() {
 		super(320, 320, 32, 32);
 		load();
-		ground = false;
 		vx = 0;
 		vy = 0;
-		xprojection = new Rectangle(x, y, width, height);
-		yprojection = new Rectangle(x, y, width, height);
-		xcollision = null;
-		ycollision = null;
-		debug = true;
+		keyUp = Input.ARROW_UP;
+		keyLeft = Input.ARROW_LEFT;
+		keyRight = Input.ARROW_RIGHT;
+		yState = YStates.FALLING;
+		xState = XStates.IDLE;
+		forward = true;
 	}
 
 	private void load() {
-		// TextureRegion sprite[] = new TextureRegion[3];
-		// for (int i = 0; i < 3; i++) {
-		// sprite[i] = new TextureRegion(new
-		// Texture(Gdx.files.internal("img/block" + i + ".png")));
-		// }
-		TextureRegion sprite = new TextureRegion(new Texture(Gdx.files.internal("img/blob.png")));
-		this.sprite.setSprite(sprite);
+		sprIdleL = new TextureRegion[2];
+		sprIdleR = new TextureRegion[2];
+		sprRunL = new TextureRegion[2];
+		sprRunR = new TextureRegion[2];
+		sprPushL = new TextureRegion[2];
+		sprPushR = new TextureRegion[2];
+		sprJumpL = new TextureRegion[2];
+		sprJumpR = new TextureRegion[2];
+		sprFallL = new TextureRegion[2];
+		sprFallR = new TextureRegion[2];
+		for (int i = 0; i < 2; i++) {
+			sprIdleL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/idleL.png")), i * 32, 0, 32, 32);
+			sprIdleR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/idleR.png")), i * 32, 0, 32, 32);
+			sprRunL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/runL.png")), i * 32, 0, 32, 32);
+			sprRunR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/runR.png")), i * 32, 0, 32, 32);
+			sprPushL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/pushL.png")), i * 32, 0, 32, 32);
+			sprPushR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/pushR.png")), i * 32, 0, 32, 32);
+			sprJumpL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/jumpL.png")), i * 32, 0, 32, 32);
+			sprJumpR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/jumpR.png")), i * 32, 0, 32, 32);
+			sprFallL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/fallL.png")), i * 32, 0, 32, 32);
+			sprFallR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/fallR.png")), i * 32, 0, 32, 32);
+		}
+		this.sprite.setSprite(sprFallR);
 		setOffset(0, 0);
 	}
 
-	private void moveUp() {
-		if (ground) {
+	private void changeYState(YStates state) {
+		switch (state) {
+		case JUMPING:
 			vy = JUMP_SPEED;
+			if (xState == XStates.PUSHING) {
+				xState = XStates.IDLE;
+			}
+			break;
+		case FALLING:
+			break;
+		case GROUND:
+			vy = 0;
+			y = yCollision.getY() + yCollision.getHeight();
+			break;
+		}
+		yState = state;
+	}
+
+	private void handleYState() {
+		y += vy * Vars.SPF;
+		body.y = y;
+		yProjection.set(x, y + vy * Vars.SPF, width, height);
+		switch (yState) {
+		case JUMPING:
+			vy -= Vars.GRAVITY * Vars.SPF;
+			if (vy < 0) {
+				changeYState(YStates.FALLING);
+			} else {
+				yCollision = GameScreen.blockIn(yProjection);
+				if (yCollision != null && !(yCollision instanceof Platform)) {
+					changeYState(YStates.FALLING);
+					vy = 0;
+					y = yCollision.getY() - height;
+				}
+			}
+			break;
+		case FALLING:
+			vy -= Vars.GRAVITY * Vars.SPF;
+			yCollision = GameScreen.blockIn(yProjection);
+			if (yCollision != null) {
+				if (!(yCollision instanceof Platform) || y - vy * Vars.SPF > yCollision.getY() + yCollision.getHeight()) {
+					changeYState(YStates.GROUND);
+				}
+			}
+			break;
+		case GROUND:
+			yCollision = GameScreen.blockIn(new Rectangle(x, y - 1, width, 1));
+			if (yCollision == null) {
+				changeYState(YStates.FALLING);
+			} else {
+				if (jump) {
+					yCollision = GameScreen.blockIn(new Rectangle(x, y + height, width, 1));
+					if (yCollision == null || yCollision instanceof Platform) {
+						changeYState(YStates.JUMPING);
+					}
+				}
+			}
+			break;
 		}
 	}
 
-	private void moveDown() {
-		if (ground) {
-			vy = -320;
+	private void changeXState(XStates state) {
+		switch (state) {
+		case IDLE:
+			vx = 0;
+			x = MathUtils.round(x / 4) * 4;
+			break;
+		case SLOWING:
+			break;
+		case MOVING:
+			break;
+		case PUSHING:
+			break;
 		}
+		xState = state;
 	}
 
-	private void moveLeft() {
-		if (vx > -MOVE_SPEED) {
-			vx -= AX;
-		} else {
-			vx = -MOVE_SPEED;
-		}
-	}
-
-	private void moveRight() {
-		if (vx < MOVE_SPEED) {
-			vx += AX;
-		} else {
-			vx = MOVE_SPEED;
-		}
-	}
-
-	private void slowx() {
-		if (vx > 0) {
-			if (vx > AX) {
-				if (ground) {
-					vx -= AX;
+	private void handleXState() {
+		x += vx * Vars.SPF;
+		body.x = x;
+		xProjection.set(x + vx * Vars.SPF, y, width, height);
+		switch (xState) {
+		case IDLE:
+			if (!(moveLeft == moveRight)) {
+				if (moveLeft) {
+					forward = false;
+					xCollision = GameScreen.blockIn(new Rectangle(x - 1, y, 1, height));
+					if (xCollision == null || xCollision instanceof Platform) {
+						changeXState(XStates.MOVING);
+					} else if (xCollision instanceof Slab && yState == YStates.GROUND) {
+						changeXState(XStates.PUSHING);
+					}
+				}
+				if (moveRight) {
+					forward = true;
+					xCollision = GameScreen.blockIn(new Rectangle(x + width, y, 1, height));
+					if (xCollision == null || xCollision instanceof Platform) {
+						changeXState(XStates.MOVING);
+					} else if (xCollision instanceof Slab && yState == YStates.GROUND) {
+						changeXState(XStates.PUSHING);
+					}
+				}
+			}
+			break;
+		case SLOWING:
+			xCollision = GameScreen.blockIn(xProjection);
+			if (xCollision == null || xCollision instanceof Platform) {
+				if (moveLeft == moveRight && vx > AX) {
+					if (yState == YStates.GROUND) {
+						vx -= AX;
+					} else {
+						vx -= AX_AIR;
+					}
+				} else if (moveLeft == moveRight && vx < -AX) {
+					if (yState == YStates.GROUND) {
+						vx += AX;
+					} else {
+						vx += AX_AIR;
+					}
 				} else {
-					vx -= AX_AIR;
+					if (moveLeft == moveRight) {
+						changeXState(XStates.IDLE);
+					} else {
+						changeXState(XStates.MOVING);
+					}
 				}
 			} else {
-				vx = 0;
-			}
-		} else if (vx < 0) {
-			if (vx < -AX) {
-				if (ground) {
-					vx += AX;
-				} else {
-					vx += AX_AIR;
+				if (vx > 0) {
+					x = xCollision.getX() - width;
 				}
-			} else {
-				vx = 0;
+				if (vx < 0) {
+					x = xCollision.getX() + xCollision.getWidth();
+				}
+				changeXState(XStates.IDLE);
 			}
+			break;
+		case MOVING:
+			if (moveLeft == moveRight) {
+				changeXState(XStates.SLOWING);
+			} else {
+				xCollision = GameScreen.blockIn(xProjection);
+				if (xCollision == null || xCollision instanceof Platform) {
+					if (moveRight) {
+						forward = true;
+						vx += AX;
+						if (vx > MOVE_SPEED) {
+							vx = MOVE_SPEED;
+						}
+					}
+					if (moveLeft) {
+						forward = false;
+						vx -= AX;
+						if (vx < -MOVE_SPEED) {
+							vx = -MOVE_SPEED;
+						}
+					}
+				} else {
+					if (vx > 0) {
+						x = xCollision.getX() - width;
+					}
+					if (vx < 0) {
+						x = xCollision.getX() + xCollision.getWidth();
+					}
+					changeXState(XStates.SLOWING);
+				}
+			}
+			break;
+		case PUSHING:
+			if (moveLeft == moveRight) {
+				changeXState(XStates.MOVING);
+			} else {
+				if (moveLeft) {
+					forward = false;
+					xCollision = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height));
+					if (xCollision instanceof Slab) {
+						x = xCollision.getX() + xCollision.getWidth();
+						((Slab) xCollision).push(-1);
+					} else {
+						changeXState(XStates.MOVING);
+					}
+				}
+				if (moveRight) {
+					forward = true;
+					xCollision = GameScreen.blockIn(new Rectangle(x + width, y, 16, height));
+					if (xCollision instanceof Slab) {
+						x = xCollision.getX() - width;
+						((Slab) xCollision).push(1);
+					} else {
+						changeXState(XStates.MOVING);
+					}
+				}
+			}
+			break;
 		}
 	}
 
-	public void update() {
-		a.add(new Vector2(x, y));
-		if (a.size > 60) {
-			px = a.first().x;
-			py = a.first().y;
-			a.removeIndex(0);
-		}
-		collisions();
-		if (vx == 0) {
-			x = Math.round(x / 4) * 4;
+	private void handleSprite() {
+		if (forward) {
+			switch (yState) {
+			case GROUND:
+				switch (xState) {
+				case IDLE:
+					sprite.setSprite(sprIdleR);
+					break;
+				case MOVING:
+				case SLOWING:
+					sprite.setSprite(sprRunR);
+					break;
+				case PUSHING:
+					sprite.setSprite(sprPushR);
+					break;
+				}
+				break;
+			case JUMPING:
+				sprite.setSprite(sprJumpR);
+				break;
+			case FALLING:
+				sprite.setSprite(sprFallR);
+				break;
+			}
+		} else {
+			switch (yState) {
+			case GROUND:
+				switch (xState) {
+				case IDLE:
+					sprite.setSprite(sprIdleL);
+					break;
+				case MOVING:
+				case SLOWING:
+					sprite.setSprite(sprRunL);
+					break;
+				case PUSHING:
+					sprite.setSprite(sprPushL);
+					break;
+				}
+				break;
+			case JUMPING:
+				sprite.setSprite(sprJumpL);
+				break;
+			case FALLING:
+				sprite.setSprite(sprFallL);
+				break;
+			}
 		}
 		sprite.update();
-		x += vx * Vars.SPF;
-		y += vy * Vars.SPF;
-		body.x = x;
-		body.y = y;
+	}
+	
+	public void update() {
+		keyListener();
+		handleXState();
+		handleYState();
+		handleSprite();
 	}
 
-	public void keyListener() {
-		if (Input.KeyPressed(Input.ARROW_UP)) {
-			moveUp();
-		}
-		if (Input.KeyPressed(Input.ARROW_DOWN)) {
-			moveDown();
-		}
-		if (Input.KeyDown(Input.ARROW_LEFT)) {
-			moveLeft();
-		}
-		if (Input.KeyDown(Input.ARROW_RIGHT)) {
-			moveRight();
-		}
-		if (!Input.KeyDown(Input.ARROW_LEFT) && !Input.KeyDown(Input.ARROW_RIGHT)) {
-			slowx();
-		}
-		if (Input.KeyPressed(Input.SPACEBAR)) {
-			debug = !debug;
-		}
-	}
-
-	private void collisions() {
-		xprojection.setPosition(x + vx * Vars.SPF * 2, y);
-		yprojection.setPosition(x, y + vy * Vars.SPF * 2);
-		if (vx != 0 || vy != 0) {
-			xcollision = GameScreen.blockIn(xprojection);
-			ycollision = GameScreen.blockIn(yprojection);
-		} else {
-			xcollision = null;
-			ycollision = null;
-		}
-		if (ground) {
-			Block beneath = GameScreen.blockIn(new Rectangle(x, y - 1, width, height));
-			if (beneath == null || (beneath instanceof Platform && vy > 0)) {
-				ground = false;
-			}
-		}
-		if (!ground) {
-			vy -= Vars.GRAVITY * Vars.SPF;
-		}
-		if (ycollision != null) {
-			if (!(ycollision instanceof Platform) || y > ycollision.getBody().y + ycollision.getBody().height) {
-				if (vy > 0) {
-					vy = 0;
-					y = ycollision.getBody().y - height;
-				}
-				if (vy < 0) {
-					vy = 0;
-					y = ycollision.getBody().y + ycollision.getBody().height;
-					ground = true;
-				}
-			}
-		}
-		if (xcollision != null && !(xcollision instanceof Platform)) {
-			if (vx > 0) {
-				if (xcollision instanceof Slab && ground) {
-					((Slab) xcollision).push(1);
-				}
-				vx = 0;
-				x = xcollision.getBody().x - width;
-			}
-			if (vx < 0) {
-				if (xcollision instanceof Slab && ground) {
-					((Slab) xcollision).push(-1);
-				}
-				vx = 0;
-				x = xcollision.getBody().x + xcollision.getBody().width;
-			}
-		}
+	private void keyListener() {
+		jump = Input.KeyPressed(keyUp);
+		moveLeft = Input.KeyDown(keyLeft);
+		moveRight = Input.KeyDown(keyRight);
 	}
 
 	public void render(ShapeRenderer sr) {
 		sr.begin(ShapeType.Line);
-		sr.setColor(Color.CYAN);
-		sr.rect(px, py, 32, 32);
-		sr.end();
-		if (debug) {
-			sr.begin(ShapeType.Line);
-			sr.setColor(Color.CYAN);
-			sr.rect(yprojection.x, yprojection.y, yprojection.width, yprojection.height);
-			if (ycollision != null) {
-				Rectangle ybody = ycollision.getBody();
-				sr.rect(ybody.x, ybody.y, ybody.width, ybody.height);
-			}
-			sr.setColor(Color.YELLOW);
-			sr.rect(xprojection.x, xprojection.y, xprojection.width, xprojection.height);
-			if (xcollision != null) {
-				Rectangle xbody = xcollision.getBody();
-				sr.rect(xbody.x, xbody.y, xbody.width, xbody.height);
-			}
-			sr.end();
+		sr.setColor(Color.YELLOW);
+		// sr.rect(xProjection.x, xProjection.y, xProjection.width,
+		// xProjection.height);
+		if (xCollision != null) {
+			sr.rect(xCollision.getX(), xCollision.getY(), xCollision.getWidth(), xCollision.getHeight());
 		}
+		sr.setColor(Color.CYAN);
+		// sr.rect(yProjection.x, yProjection.y, yProjection.width,
+		// yProjection.height);
+		if (yCollision != null) {
+			sr.rect(yCollision.getX(), yCollision.getY(), yCollision.getWidth(), yCollision.getHeight());
+		}
+		sr.end();
 		super.render(sr);
 	}
 }

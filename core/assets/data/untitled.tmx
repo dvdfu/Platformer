@@ -6,14 +6,14 @@
  <tileset firstgid="229" name="block1" tilewidth="16" tileheight="16">
   <image source="block1.png" width="32" height="32"/>
  </tileset>
- <layer name="Tile Layer 2" width="60" height="30">
+ <layer name="blocks" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJztmUEKgDAMBAP9/zOrPsNevARCC21M2OxA2YNGWod4iF1ErrF6kbzHegrld250tF906Bcb+sWGfrGhX2zoFxv6xYZ+sdn1q+cG2dn1q+cG2cnWv977yNa/3vvY8dvEnv81da/V51a9F6f713qOdX21/hSnv8+rOav3wsvvLGf1Xmi/VTJ63h/1f6FKRr/vv/MFj6TmTA==
+   eJztmUsKwCAMBT1G73+3fo5RXQgSbI0aNYkZCOlCC89RCvV0zl2+zk367evZqMfc2oF+tWN+dWN+dWN+dWN+dWN+dVPrV/o+qPUrfR+0+pXqudUvpeeD6D0Yev1i5s3MU6LX79e8v4wr89v3dw6rHEO/pfNZGpfmgJk4nGPs/8lIaRzMW5NxxnqM8JsrLozwyzVrAOsX29OM8JkD1PcLuXxcsgao/Urpq+9zZvcXzsSdjA==
   </data>
  </layer>
- <layer name="Tile Layer 3" width="60" height="30">
+ <layer name="platforms" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1cEJADAIA0AX7+4dof4a5Q4cIES0CgCY6jyGfDqUd6ru7m7J2yUv5PFrATK5zwB/XQebGtw=
+   eJzt00EKwDAIBMCA//9zr6HYQgPBVGZA8BbR7BgAdBLVA9BCTHWCU+b4s0iKWm7wXfaPd+3x6S35eWc3zKoytJpfmYce4tbLMQDkLm9MAJ0=
   </data>
  </layer>
 </map>
