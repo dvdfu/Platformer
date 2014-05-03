@@ -75,4 +75,16 @@ public class Slab extends Block {
 		sr.rect(x, y, width, height);
 		sr.end();
 	}
+	
+	public boolean lockedLeft() {
+		return lockedLeft;
+	}
+	
+	public boolean lockedRight() {
+		return lockedRight;
+	}
+	
+	public boolean beingPushed() {
+		return pushTimer > 0;
+	}
 }

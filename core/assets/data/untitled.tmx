@@ -8,12 +8,12 @@
  </tileset>
  <layer name="Tile Layer 2" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJztmUEKwDAIBPP/f6btM5pLL4IYiFZZdyDsIRiSDl7sHGNca80mea/1NMrv3ehIv+jQLzb0iw39YkO/2NAvNvSLDf1ic+pXzg2qc+pXzg2qU61/o+9RrX+j7+Hdv9o52v5uvRfe/audo+3v1nsR5ddKqz6KKL9WWvVRSL9dMnven/V/oUtmf++/8wVkMOZG
+   eJztmUEKgDAMBAP9/zOrPsNevARCC21M2OxA2YNGWod4iF1ErrF6kbzHegrld250tF906Bcb+sWGfrGhX2zoFxv6xYZ+sdn1q+cG2dn1q+cG2cnWv977yNa/3vvY8dvEnv81da/V51a9F6f713qOdX21/hSnv8+rOav3wsvvLGf1Xmi/VTJ63h/1f6FKRr/vv/MFj6TmTA==
   </data>
  </layer>
  <layer name="Tile Layer 3" width="60" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1MEJAAAIAsAWb/dG6FnCHTiBYhUAkKqX8J8OSWW7QAp/BfCTfwa4NTgaE4k=
+   eJzt1cEJADAIA0AX7+4dof4a5Q4cIES0CgCY6jyGfDqUd6ru7m7J2yUv5PFrATK5zwB/XQebGtw=
   </data>
  </layer>
 </map>

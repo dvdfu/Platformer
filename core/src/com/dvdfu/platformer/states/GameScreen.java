@@ -174,31 +174,12 @@ public class GameScreen extends Game {
 					continue;
 				}
 				int xChain = 1;
-				int yChain = 1;
-				boolean chainRows = true;
 				gridMark[x][y] = true;
 				while (x + xChain < layerWidth && gridCell[x + xChain][y] && !gridMark[x + xChain][y]) {
 					gridMark[x + xChain][y] = true;
 					xChain++;
 				}
-				while (chainRows) {
-					for (int i = 0; i < xChain; i++) {
-						if (y + yChain >= layerHeight || !gridCell[x + i][y + yChain] || gridMark[x + i][y + yChain]) {
-							chainRows = false;
-						}
-					}
-					if (chainRows) {
-						for (int i = 0; i < xChain; i++) {
-							if (y + yChain < layerHeight) {
-								gridMark[x + i][y + yChain] = true;
-							} else {
-								break;
-							}
-						}
-						yChain++;
-					}
-				}
-				blockArray.add(new Platform(x * 16, y * 16, 16 * xChain, 16 * yChain));
+				blockArray.add(new Platform(x * 16, y * 16, 16 * xChain, 16));
 			}
 		}
 	}
@@ -247,7 +228,9 @@ public class GameScreen extends Game {
 		for (Block b : blockArray) {
 			if (b.getBody().overlaps(r)) {
 				if (b instanceof Platform) {
-					best = b;
+					if (best == null || b.getY() < best.getY()) {
+						best = b;
+					}
 				} else {
 					return b;
 				}

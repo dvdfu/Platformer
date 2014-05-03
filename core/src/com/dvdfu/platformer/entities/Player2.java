@@ -14,28 +14,40 @@ import com.dvdfu.platformer.handlers.Input;
 import com.dvdfu.platformer.states.GameScreen;
 
 public class Player2 extends GameObject {
+	final private float MOVE_SPEED = 160f;
+	final private float JUMP_SPEED = 400f;
+	final private float AX = 20f;
+	final private float AX_AIR = 4f;
 	private float vx;
 	private float vy;
 	private int keyUp;
 	private int keyLeft;
 	private int keyRight;
+	private int keyDown;
 	private boolean jump;
 	private boolean moveLeft;
 	private boolean moveRight;
+	private boolean forward;
 	private Block yCollision = null;
 	private Block xCollision = null;
 	private Rectangle xProjection = new Rectangle();
 	private Rectangle yProjection = new Rectangle();
-	private TextureRegion sprGround[];
-	private TextureRegion sprJump[];
-	private TextureRegion sprFall[];
+	private TextureRegion sprIdleL[];
+	private TextureRegion sprRunL[];
+	private TextureRegion sprJumpL[];
+	private TextureRegion sprFallL[];
+	private TextureRegion sprIdleR[];
+	private TextureRegion sprRunR[];
+	private TextureRegion sprJumpR[];
+	private TextureRegion sprFallR[];
+	private boolean debug;
 
 	private enum YStates {
 		GROUND, JUMPING, FALLING
 	};
 
 	private enum XStates {
-		IDLE, MOVING, PUSHING
+		IDLE, SLOWING, MOVING, PUSHING
 	};
 
 	private YStates yState;
@@ -49,42 +61,52 @@ public class Player2 extends GameObject {
 		keyUp = Input.ARROW_UP;
 		keyLeft = Input.ARROW_LEFT;
 		keyRight = Input.ARROW_RIGHT;
+		keyDown = Input.ARROW_DOWN;
 		yState = YStates.FALLING;
 		xState = XStates.IDLE;
+		debug = false;
+		forward = true;
 	}
 
 	private void load() {
-		sprGround = new TextureRegion[2];
-		sprJump = new TextureRegion[2];
-		sprFall = new TextureRegion[2];
-		for (int i = 0; i < sprGround.length; i++) {
-			sprGround[i] = new TextureRegion(new Texture(Gdx.files.internal("img/ground.png")), i * 32, 0, 32, 32);
-			sprJump[i] = new TextureRegion(new Texture(Gdx.files.internal("img/jump.png")), i * 32, 0, 32, 32);
-			sprFall[i] = new TextureRegion(new Texture(Gdx.files.internal("img/fall.png")), i * 32, 0, 32, 32);
+		sprIdleL = new TextureRegion[2];
+		sprRunL = new TextureRegion[2];
+		sprJumpL = new TextureRegion[2];
+		sprFallL = new TextureRegion[2];
+		sprIdleR = new TextureRegion[2];
+		sprRunR = new TextureRegion[2];
+		sprJumpR = new TextureRegion[2];
+		sprFallR = new TextureRegion[2];
+		for (int i = 0; i < 2; i++) {
+			sprIdleL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/idleL.png")), i * 32, 0, 32, 32);
+			sprRunL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/runL.png")), i * 32, 0, 32, 32);
+			sprJumpL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/jumpL.png")), i * 32, 0, 32, 32);
+			sprFallL[i] = new TextureRegion(new Texture(Gdx.files.internal("img/fallL.png")), i * 32, 0, 32, 32);
+			sprIdleR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/idleR.png")), i * 32, 0, 32, 32);
+			sprRunR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/runR.png")), i * 32, 0, 32, 32);
+			sprJumpR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/jumpR.png")), i * 32, 0, 32, 32);
+			sprFallR[i] = new TextureRegion(new Texture(Gdx.files.internal("img/fallR.png")), i * 32, 0, 32, 32);
 		}
-		this.sprite.setSprite(sprFall);
+		this.sprite.setSprite(sprFallR);
 		setOffset(0, 0);
 	}
 
 	private void changeYState(YStates state) {
 		switch (state) {
 		case JUMPING:
-			getSprite().setSprite(sprJump);
-			vy = 400;
+			vy = JUMP_SPEED;
 			if (xState == XStates.PUSHING) {
 				xState = XStates.IDLE;
 			}
 			break;
 		case FALLING:
-			getSprite().setSprite(sprFall);
 			break;
 		case GROUND:
-			getSprite().setSprite(sprGround);
 			vy = 0;
 			y = yCollision.getY() + yCollision.getHeight();
 			break;
 		}
-		this.yState = state;
+		yState = state;
 	}
 
 	private void handleYState() {
@@ -109,7 +131,7 @@ public class Player2 extends GameObject {
 			vy -= Vars.GRAVITY * Vars.SPF;
 			yCollision = GameScreen.blockIn(yProjection);
 			if (yCollision != null) {
-				if (!(yCollision instanceof Platform) || y > yCollision.getY()) {
+				if (!(yCollision instanceof Platform) || y - vy * Vars.SPF > yCollision.getY() + yCollision.getHeight()) {
 					changeYState(YStates.GROUND);
 				}
 			}
@@ -130,6 +152,22 @@ public class Player2 extends GameObject {
 		}
 	}
 
+	private void changeXState(XStates state) {
+		switch (state) {
+		case IDLE:
+			vx = 0;
+			x = MathUtils.round(x / 4) * 4;
+			break;
+		case SLOWING:
+			break;
+		case MOVING:
+			break;
+		case PUSHING:
+			break;
+		}
+		xState = state;
+	}
+
 	private void handleXState() {
 		x += vx * Vars.SPF;
 		body.x = x;
@@ -138,36 +176,76 @@ public class Player2 extends GameObject {
 		case IDLE:
 			if (!(moveLeft == moveRight)) {
 				if (moveLeft) {
+					forward = false;
 					xCollision = GameScreen.blockIn(new Rectangle(x - 1, y, 1, height));
 					if (xCollision == null || xCollision instanceof Platform) {
-						xState = XStates.MOVING;
+						changeXState(XStates.MOVING);
 					} else if (xCollision instanceof Slab && yState == YStates.GROUND) {
-						xState = XStates.PUSHING;
+						changeXState(XStates.PUSHING);
 					}
 				}
 				if (moveRight) {
+					forward = true;
 					xCollision = GameScreen.blockIn(new Rectangle(x + width, y, 1, height));
 					if (xCollision == null || xCollision instanceof Platform) {
-						xState = XStates.MOVING;
+						changeXState(XStates.MOVING);
 					} else if (xCollision instanceof Slab && yState == YStates.GROUND) {
-						xState = XStates.PUSHING;
+						changeXState(XStates.PUSHING);
 					}
 				}
 			}
 			break;
+		case SLOWING:
+			xCollision = GameScreen.blockIn(xProjection);
+			if (xCollision == null || xCollision instanceof Platform) {
+				if (moveLeft == moveRight) {
+					if (moveLeft == moveRight && vx > AX) {
+						if (yState == YStates.GROUND) {
+							vx -= AX;
+						} else {
+							vx -= AX_AIR;
+						}
+					} else if (moveLeft == moveRight && vx < -AX) {
+						if (yState == YStates.GROUND) {
+							vx += AX;
+						} else {
+							vx += AX_AIR;
+						}
+					} else {
+						changeXState(XStates.IDLE);
+					}
+				} else {
+					changeXState(XStates.MOVING);
+				}
+			} else {
+				if (vx > 0) {
+					x = xCollision.getX() - width;
+				}
+				if (vx < 0) {
+					x = xCollision.getX() + xCollision.getWidth();
+				}
+				changeXState(XStates.IDLE);
+			}
+			break;
 		case MOVING:
 			if (moveLeft == moveRight) {
-				xState = XStates.IDLE;
-				vx = 0;
-				x = MathUtils.round(x / 4) * 4;
+				changeXState(XStates.SLOWING);
 			} else {
 				xCollision = GameScreen.blockIn(xProjection);
 				if (xCollision == null || xCollision instanceof Platform) {
 					if (moveRight) {
-						vx = 200;
+						forward = true;
+						vx += AX;
+						if (vx > MOVE_SPEED) {
+							vx = MOVE_SPEED;
+						}
 					}
 					if (moveLeft) {
-						vx = -200;
+						forward = false;
+						vx -= AX;
+						if (vx < -MOVE_SPEED) {
+							vx = -MOVE_SPEED;
+						}
 					}
 				} else {
 					if (vx > 0) {
@@ -177,36 +255,35 @@ public class Player2 extends GameObject {
 						x = xCollision.getX() + xCollision.getWidth();
 					}
 					if (xCollision instanceof Slab && yState == YStates.GROUND) {
-						xState = XStates.PUSHING;
+						changeXState(XStates.PUSHING);
 					} else {
-						xState = XStates.IDLE;
-						vx = 0;
-						x = MathUtils.round(x / 4) * 4;
+						changeXState(XStates.SLOWING);
 					}
 				}
 			}
 			break;
 		case PUSHING:
-			xCollision = GameScreen.blockIn(xProjection);
 			if (moveLeft == moveRight) {
-				xState = XStates.IDLE;
-				vx = 0;
-			} else if (xCollision == null) {
-				xState = XStates.MOVING;
+				changeXState(XStates.MOVING);
 			} else {
-				if (vx > 0) {
-					x = xCollision.getX() - width;
+				if (moveLeft) {
+					forward = false;
+					xCollision = GameScreen.blockIn(new Rectangle(x - 16, y, 16, height));
 					if (xCollision instanceof Slab) {
-						((Slab) xCollision).push(1);
-					} else {
-						xState = XStates.IDLE;
-					}
-				} else if (vx < 0) {
-					x = xCollision.getX() + xCollision.getWidth();
-					if (xCollision instanceof Slab) {
+						x = xCollision.getX() + xCollision.getWidth();
 						((Slab) xCollision).push(-1);
 					} else {
-						xState = XStates.IDLE;
+						changeXState(XStates.MOVING);
+					}
+				}
+				if (moveRight) {
+					forward = true;
+					xCollision = GameScreen.blockIn(new Rectangle(x + width, y, 16, height));
+					if (xCollision instanceof Slab) {
+						x = xCollision.getX() - width;
+						((Slab) xCollision).push(1);
+					} else {
+						changeXState(XStates.MOVING);
 					}
 				}
 			}
@@ -215,6 +292,39 @@ public class Player2 extends GameObject {
 	}
 
 	public void update() {
+		if (forward) {
+			switch (yState) {
+			case GROUND:
+				if (vx == 0) {
+					sprite.setSprite(sprIdleR);
+				} else {
+					sprite.setSprite(sprRunR);
+				}
+				break;
+			case JUMPING:
+				sprite.setSprite(sprJumpR);
+				break;
+			case FALLING:
+				sprite.setSprite(sprFallR);
+				break;
+			}
+		} else {
+			switch (yState) {
+			case GROUND:
+				if (vx == 0) {
+					sprite.setSprite(sprIdleL);
+				} else {
+					sprite.setSprite(sprRunL);
+				}
+				break;
+			case JUMPING:
+				sprite.setSprite(sprJumpL);
+				break;
+			case FALLING:
+				sprite.setSprite(sprFallL);
+				break;
+			}
+		}
 		sprite.update();
 		keyListener();
 		handleXState();
@@ -225,21 +335,27 @@ public class Player2 extends GameObject {
 		jump = Input.KeyPressed(keyUp);
 		moveLeft = Input.KeyDown(keyLeft);
 		moveRight = Input.KeyDown(keyRight);
+		if (Input.KeyPressed(keyDown)) {
+			debug = !debug;
+		}
 	}
 
 	public void render(ShapeRenderer sr) {
-		sr.begin(ShapeType.Line);
-		sr.setColor(Color.YELLOW);
-		sr.rect(xProjection.x, xProjection.y, xProjection.width, xProjection.height);
-		if (xCollision != null) {
-			sr.rect(xCollision.getX(), xCollision.getY(), xCollision.getWidth(), xCollision.getHeight());
+		if (debug) {
+			sr.begin(ShapeType.Line);
+			sr.setColor(Color.YELLOW);
+			sr.rect(xProjection.x, xProjection.y, xProjection.width, xProjection.height);
+			if (xCollision != null) {
+				sr.rect(xCollision.getX(), xCollision.getY(), xCollision.getWidth(), xCollision.getHeight());
+			}
+			sr.setColor(Color.CYAN);
+			sr.rect(yProjection.x, yProjection.y, yProjection.width, yProjection.height);
+			if (yCollision != null) {
+				sr.rect(yCollision.getX(), yCollision.getY(), yCollision.getWidth(), yCollision.getHeight());
+			}
+			sr.end();
+		} else {
+			super.render(sr);
 		}
-		sr.setColor(Color.CYAN);
-		sr.rect(yProjection.x, yProjection.y, yProjection.width, yProjection.height);
-		if (yCollision != null) {
-			sr.rect(yCollision.getX(), yCollision.getY(), yCollision.getWidth(), yCollision.getHeight());
-		}
-		sr.end();
-		//super.render(sr);
 	}
 }
