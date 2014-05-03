@@ -80,7 +80,7 @@ public class GameObject {
 	}
 
 	public void render(SpriteBatch sb) {
-		if (sprite != null) {
+		if (sprite.exists()) {
 			sb.begin();
 			sb.draw(sprite.getFrame(), x + xOffset, y + yOffset);
 			sb.end();
@@ -91,7 +91,7 @@ public class GameObject {
 		sr.begin(ShapeType.Line);
 		sr.setColor(1, 0, 0, 1);
 		sr.rect(x, y, width, height);
-		if (sprite != null) {
+		if (sprite.exists()) {
 			sr.setColor(0, 1, 0, 1);
 			sr.rect(x + xOffset, y + yOffset, spriteWidth, spriteHeight);
 		}

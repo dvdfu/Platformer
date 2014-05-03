@@ -224,16 +224,17 @@ public class GameScreen extends Game {
 		sr.setProjectionMatrix(cam.combined);
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		sb.begin();
-		sb.draw(bg, cam.position.x - 320, 0);
-		sb.end();
-		level.render();
+		//sb.begin();
+		//sb.draw(bg, cam.position.x - 320, 0);
+		//sb.end();
+		//level.render();
 		p.render(sb);
-		//for (Block b : blockArray) { b.render(sr); }
 		s.update();
-		s.render(sb);
 		s2.update();
-		s2.render(sb);
+		for (Block b : blockArray) {
+			//b.render(sb);
+			b.render(sr);
+			}
 		h.setView(cam);
 		h.render(sb);
 		h.update();
@@ -245,9 +246,10 @@ public class GameScreen extends Game {
 		Block best = null;
 		for (Block b : blockArray) {
 			if (b.getBody().overlaps(r)) {
-				if (best != null) {
-				} else {
+				if (b instanceof Platform) {
 					best = b;
+				} else {
+					return b;
 				}
 			}
 		}

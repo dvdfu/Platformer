@@ -19,7 +19,7 @@ public class Sprite {
 
 	public Sprite(TextureRegion[] reg) {
 		frames = reg;
-		delay = Vars.SPRITE_FPS;
+		delay = Vars.SPRITE_SPF;
 		time = 0;
 		frame = 0;
 		length = reg.length;
@@ -40,10 +40,12 @@ public class Sprite {
 	}
 
 	public void setSprite(TextureRegion[] reg) {
-		frames = reg;
-		time = 0;
-		frame = 0;
-		length = reg.length;
+		if (frames != reg) {
+			frames = reg;
+			time = 0;
+			frame = 0;
+			length = reg.length;
+		}
 	}
 
 	public void update() {
@@ -61,5 +63,9 @@ public class Sprite {
 
 	public TextureRegion getFrame() {
 		return frames[frame];
+	}
+	
+	public boolean exists() {
+		return frames[0] != null;
 	}
 }
