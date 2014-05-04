@@ -69,7 +69,7 @@ public class GameScreen extends Game {
 		level = new OrthogonalTiledMapRenderer(map, 1f);
 		s = new Slab(160, 400, 32, 32);
 		blockArray.add(s);
-		s2 = new Slab(272, 160, 32, 32);
+		s2 = new Slab(300, 200, 32, 32);
 		blockArray.add(s2);
 		m = new Moving(400, 240, 64, 16);
 		blockArray.add(m);
@@ -79,6 +79,7 @@ public class GameScreen extends Game {
 			;
 			sprite[i] = new TextureRegion(new Texture(Gdx.files.internal("img/heart1.png")), i * 32, 0, 32, 32);
 		}
+		m.getSprite().setSprite(new TextureRegion(new Texture(Gdx.files.internal("img/platform.png"))));
 		hc = new HUDCountable(sprite, 64, 64, -2, 0);
 		hc.setNum(4);
 		hc.setDelay(1 / 2f);
@@ -210,9 +211,9 @@ public class GameScreen extends Game {
 
 	public void render() {
 		Gdx.graphics.setTitle("" + Gdx.graphics.getFramesPerSecond());
+		m.update();
 		s.update();
 		s2.update();
-		m.update();
 		h.update();
 		p.update();
 		view.follow(p.getX() + p.getWidth() / 2, p.getY() + p.getHeight() / 2);

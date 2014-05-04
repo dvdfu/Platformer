@@ -45,7 +45,7 @@ public class Slab extends Block {
 			}
 		}
 		if (dy == 0) {
-			below = GameScreen.blockIn(new Rectangle(x, y - 1, width, 1));
+			below = GameScreen.blockIn(new Rectangle(x, y - 16, width, 16));
 		} else {
 			below = GameScreen.blockIn(new Rectangle(x, y + dy * Vars.SPF, width, -dy * Vars.SPF));
 		}
@@ -56,6 +56,10 @@ public class Slab extends Block {
 			dy = 0;
 		}
 		y += dy * Vars.SPF;
+		if (below instanceof Moving) {
+			y = below.getY() + below.getHeight();
+			x += ((Moving) below).getVX() * Vars.SPF;
+		}
 		body.x = x;
 		body.y = y;
 	}

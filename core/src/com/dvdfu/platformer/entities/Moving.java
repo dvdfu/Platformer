@@ -16,8 +16,8 @@ public class Moving extends Platform {
 	
 	public void update() {
 		t += Vars.SPF;
-		vx = 120 * MathUtils.cos(t * 2);
-		//vy = 120 * MathUtils.sin(t * 2);
+		// vx = 120 * MathUtils.cos(t * 2);
+		vy = 120 * MathUtils.sin(t * 2);
 		x += vx * Vars.SPF;
 		y += vy * Vars.SPF;
 		body.x = x;

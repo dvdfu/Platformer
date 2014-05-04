@@ -1,5 +1,5 @@
 Basic 2D platformer game engine in libgdx by https://github.com/dvdfu/
 
-As of May 3, 2014:
+As of May 4, 2014:
 
-Nearly completed Player2 class, which has now fully replaced Player. Fixed block pushing glitches.
+Fully implemented moving platforms. Small bug: if player cannot stand on moveable blocks when the moveable block is on top of a moving platform. Also, work on the Ramp class has started,
